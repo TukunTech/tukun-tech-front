@@ -1,9 +1,11 @@
-import {environment} from '../../../environments/environment';
-import {HttpInterceptorFn} from '@angular/common/http';
+import {environment} from '@env/environment';
+import {HttpContextToken, HttpInterceptorFn} from '@angular/common/http';
+
+export const TARGET_API = new HttpContextToken<string>(() => environment.apiUrl);
 
 export const apiPrefixInterceptor: HttpInterceptorFn = (req, next) => {
-  if (!/^https?:\/\//i.test(req.url)) {
-    req = req.clone({ url: `${environment.apiUrl}${req.url}` });
-  }
-  return next(req);
+  const base = req.context.get(TARGET_API) || environment.apiUrl;
+  const isAbsolute = /^https?:\/\//i.test(req.url);
+  return next(isAbsolute ? req : req.clone({url: base.replace(/\/+$/, '') + req.url}));
+
 };
