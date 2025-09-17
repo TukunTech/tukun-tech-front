@@ -1,0 +1,100 @@
+:host {
+  display: block
+}
+
+.sb {
+  --bg: #141414; /* fondo sidebar */
+  --bg-hover: #1f1f1f; /* hover */
+  --bg-active: #202020; /* pill activo */
+  --fg: #e7e3d8; /* texto */
+  --muted: #a29f96; /* iconos/opaco */
+  --accent: #f5f2e7; /* borde/realces suaves */
+
+  width: 248px;
+  min-width: 248px;
+  height: 100dvh;
+  background: var(--bg);
+  color: var(--fg);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  border-right: 1px solid #222;
+}
+
+.sb--collapsed {
+  width: 80px;
+  min-width: 80px;
+}
+
+.sb__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 12px;
+  border-bottom: 1px solid #1d1d1d;
+}
+
+.sb__brand-name {
+  font-weight: 700;
+  letter-spacing: .4px;
+}
+
+.sb--collapsed .sb__brand-name {
+  display: none;
+}
+
+.sb__toggle {
+  margin-left: auto;
+  background: transparent;
+  color: var(--fg);
+  border: 0;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.sb__nav {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sb__nav--footer {
+  margin-top: auto;
+  padding-bottom: 16px;
+}
+
+.sb__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--fg);
+  padding: 10px 12px;
+  border-radius: 14px;
+  transition: background .15s ease, color .15s ease;
+}
+
+.sb__item:hover {
+  background: var(--bg-hover);
+}
+
+.sb__item.is-active {
+  background: var(--bg-active);
+}
+
+.sb__icon {
+  opacity: .9;
+}
+
+.sb__label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sb--collapsed .sb__label {
+  display: none;
+}

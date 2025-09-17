@@ -1,0 +1,32 @@
+<aside class="sb" [class.sb--collapsed]="isCollapsed()">
+  <div class="sb__brand">
+    <img ngSrc="ic_logo2.png" width="35" height="35" alt="TUKUNTECH">
+    <span class="sb__brand-name">TUKUNTECH</span>
+    <button class="sb__toggle" (click)="toggle()" aria-label="Toggle sidebar">☰</button>
+  </div>
+
+  <nav class="sb__nav" aria-label="Primary">
+    <a
+      *ngFor="let item of itemsMain()"
+      class="sb__item"
+      [routerLink]="item.route"
+      [routerLinkActive]="'is-active'"
+      [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
+    >
+      <img [ngSrc]="'/' + item.icon" width="18" height="18" alt="" class="sb__icon">
+      <span class="sb__label">{{ item.label }}</span>
+    </a>
+  </nav>
+
+  <nav class="sb__nav sb__nav--footer" aria-label="Secondary">
+    <a
+      *ngFor="let item of itemsFooter()"
+      class="sb__item"
+      [routerLink]="item.route"
+      routerLinkActive="is-active"
+    >
+      <img [ngSrc]="'/' + item.icon" width="18" height="18" alt="" class="sb__icon">
+      <span class="sb__label">{{ item.label }}</span>
+    </a>
+  </nav>
+</aside>
