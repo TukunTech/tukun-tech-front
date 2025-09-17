@@ -1,4 +1,32 @@
-/* You can add global styles to this file, and also import other style files */
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+:root {
+  --dark: #191919;
+  --dark-2: #2f2f2f;
+  --cream: #f3e8cc;
+  --text-cream: #efe7d3;
+
+  --shadow-100: 0 3px 8px rgba(0,0,0,.18);
+  --shadow-200: 0 6px 14px rgba(0,0,0,.25);
+  --radius-12: 12px;
+  --radius-pill: 999px;
+
+  --ff-display: "Bowlby One SC", system-ui, sans-serif;
+  --ff-ui: "Montserrat", system-ui, sans-serif;
+  --ff-alt: "Darker Grotesque", system-ui, sans-serif;
+}
+
+html, body {
+  font-family: var(--ff-ui);
+  color: #111;
+}
+
+h1, h2, .display {
+  font-family: var(--ff-display);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.smallcopy { font-family: var(--ff-alt); }
