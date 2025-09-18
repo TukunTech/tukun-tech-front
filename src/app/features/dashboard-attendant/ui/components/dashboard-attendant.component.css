@@ -1,0 +1,11 @@
+.attendant-page {
+  background-color: #1b1b1b;
+  min-height: 100%;
+  width: 100%;
+  padding: 20px;
+}
+
+.title {
+  color: #F0E8D5;
+  margin: 0;
+}

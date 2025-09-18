@@ -1,1 +1,62 @@
-<h1>PATIENT</h1>
+<div class="page">
+  <h1 class="page__title">Home</h1>
+  <p class="page__subtitle">{{ username }}</p>
+
+  <div class="grid">
+    <section class="card alerts">
+      <header class="card__header">
+        <h2 class="card__title">LATEST ALERTS</h2>
+        <div class="card__rule"></div>
+        <p class="muted">Here you can see the latest alerts</p>
+      </header>
+
+      <ul class="alerts__list">
+        <li class="alerts__item" *ngFor="let a of latestAlerts">
+          <div class="pill">
+            <img class="pill__icon" [src]="a.icon" width="24" height="24" alt="">
+            <span class="pill__label">{{ a.label }}</span>
+            <span class="pill__time">{{ a.time }}</span>
+          </div>
+        </li>
+      </ul>
+
+    </section>
+
+    <section class="card reminder">
+      <header class="card__header">
+        <h2 class="card__title">REMINDER</h2>
+        <div class="card__rule"></div>
+      </header>
+
+      <p class="muted">Your plan expires in:</p>
+      <div class="rem__days">
+        <span class="num">{{ reminder.days }}</span>
+        <span class="txt">DAYS</span>
+      </div>
+
+      <p class="muted">Do you want to continue with us?</p>
+      <button class="btn">Go to subscription</button>
+    </section>
+
+    <section class="card guide">
+      <header class="card__header card__header--row">
+        <div>
+          <h2 class="card__title">GUIDE</h2>
+          <div class="card__rule"></div>
+          <p class="muted">Frequently asked questions</p>
+        </div>
+        <button class="icon-btn" aria-label="Expand guide">
+          <img src="ic_guide_home.png" alt="Guide" width="24" height="24">
+        </button>
+      </header>
+
+      <div class="faq">
+        <article class="faq__item" *ngFor="let f of faqs">
+          <h3 class="faq__q">{{ f.q }}</h3>
+          <p class="faq__a">{{ f.a }}</p>
+        </article>
+      </div>
+    </section>
+
+  </div>
+</div>

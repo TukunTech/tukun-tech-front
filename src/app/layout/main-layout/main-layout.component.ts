@@ -8,5 +8,6 @@ import {SidebarComponent} from '@layout/sidebar/components/sidebar.component';
   selector: 'app-main-layout',
   imports: [CommonModule, RouterOutlet, SidebarComponent],
   templateUrl: './main-layout.component.html',
+  styleUrls: ['./main-layout.component.css']
 })
 export class MainLayoutComponent {}
