@@ -1,6 +1,10 @@
 import {Route} from '@angular/router';
-import {VitalSignsComponent} from '@feature/vital-signs/pages/vital-signs';
+import {authGuard} from '@core/guards/auth.guard';
 
 export const vitalSignsRoutes: Route[] = [
-  { path: ' ', component: VitalSignsComponent}
+  {
+    path: '',
+    canMatch: [authGuard],
+    loadComponent: () => import('./pages/vital-signs').then(m => m.VitalSignsComponent),
+  }
 ]

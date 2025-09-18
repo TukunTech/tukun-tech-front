@@ -1,6 +1,12 @@
 import {Route} from '@angular/router';
-import {PatientComponent} from '@feature/patient/pages/patient';
+import {authGuard} from '@core/guards/auth.guard';
+
 
 export const patientRoutes: Route[] = [
-  { path: ' ', component: PatientComponent }
+  {
+    path: '',
+    canMatch: [authGuard],
+    loadComponent: () =>
+      import('./pages/patient').then(m => m.PatientComponent),
+  }
 ]
