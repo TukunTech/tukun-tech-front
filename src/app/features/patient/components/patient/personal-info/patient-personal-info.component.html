@@ -1,0 +1,48 @@
+<section class="pi-wrap">
+  <header class="pi-header">
+    <h1 class="pi-title">Patient</h1>
+    <h2 class="pi-subtitle">Personal information</h2>
+  </header>
+
+  <div class="pi-card" *ngIf="data(); else loading">
+    <div class="pi-grid">
+      <label class="pi-label">name</label>
+      <input class="pi-input" type="text" [value]="data()!.name" readonly />
+
+      <label class="pi-label">last name</label>
+      <input class="pi-input" type="text" [value]="data()!.lastName" readonly />
+
+      <label class="pi-label">dni</label>
+      <input class="pi-input" type="text" [value]="data()!.dni" readonly />
+
+      <label class="pi-label">age</label>
+      <input class="pi-input" type="text" [value]="data()!.age" readonly />
+
+      <label class="pi-label">sex</label>
+      <input class="pi-input" type="text" [value]="data()!.sex" readonly />
+
+      <label class="pi-label">blood group</label>
+      <input class="pi-input" type="text" [value]="data()!.bloodGroup" readonly />
+
+      <label class="pi-label">nationality</label>
+      <input class="pi-input" type="text" [value]="data()!.nationality" readonly />
+
+      <label class="pi-label">allergy</label>
+      <input class="pi-input" type="text" [value]="data()!.allergy" readonly />
+    </div>
+  </div>
+
+  <p class="pi-question">Do you want to update your information?</p>
+  <div class="pi-actions">
+    <button class="pi-btn" type="button" (click)="onRequestUpdate()">update</button>
+  </div>
+
+  <ng-template #loading>
+    <div class="pi-card">
+      <div class="pi-skeleton-grid">
+        <div class="pi-skel-label" *ngFor="let _ of placeholders"></div>
+        <div class="pi-skel-input" *ngFor="let _ of placeholders"></div>
+      </div>
+    </div>
+  </ng-template>
+</section>

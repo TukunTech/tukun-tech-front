@@ -1,0 +1,17 @@
+<app-patient-personal-info
+  *ngIf="isPatient"
+  [data]="info">
+</app-patient-personal-info>
+
+<div *ngIf="isAttendant" class="role-box">
+
+  Attendant view (placeholder)
+</div>
+
+<div *ngIf="isAdmin" class="role-box">
+  Administrator view (placeholder)
+</div>
+
+<div *ngIf="!isPatient && !isAttendant && !isAdmin" class="role-box">
+  No role matched for this view.
+</div>

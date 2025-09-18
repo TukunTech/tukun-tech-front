@@ -1,6 +1,10 @@
 import {Route} from '@angular/router';
-import {HistoryComponent} from '@feature/history/pages/history';
+import {authGuard} from '@core/guards/auth.guard';
 
 export const historyRoutes: Route[] = [
-  { path: '', component: HistoryComponent },
+  {
+    path: '',
+    canMatch: [authGuard],
+    loadComponent: () => import('./pages/history').then(m => m.HistoryComponent),
+  },
 ]
