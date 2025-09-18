@@ -50,5 +50,13 @@ export const MENU_ITEMS: MenuItem[] = [
     section: 'footer',
     roles: ['ADMINISTRATOR', 'ATTENDANT', 'PATIENT']
   },
+  {
+    id: 'logout',
+    label: 'Logout',
+    icon: 'ic_logout.png',
+    route: '#',
+    section: 'footer',
+    roles: ['ADMINISTRATOR', 'ATTENDANT', 'PATIENT']
+  },
 ];
 

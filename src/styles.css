@@ -4,10 +4,10 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
 
 :root {
-  --dark: #191919;
+  --dark: #252525;
   --dark-2: #2f2f2f;
-  --cream: #f3e8cc;
-  --text-cream: #efe7d3;
+  --cream: #F0E8D5;
+  --text-cream: #F0E8D5;
 
   --shadow-100: 0 3px 8px rgba(0,0,0,.18);
   --shadow-200: 0 6px 14px rgba(0,0,0,.25);

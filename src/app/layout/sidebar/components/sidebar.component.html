@@ -9,24 +9,27 @@
     <a
       *ngFor="let item of itemsMain()"
       class="sb__item"
-      [routerLink]="item.route"
+      [routerLink]="getLink(item)"
       [routerLinkActive]="'is-active'"
       [routerLinkActiveOptions]="{ exact: item.exact ?? false }"
     >
       <img [ngSrc]="'/' + item.icon" width="18" height="18" alt="" class="sb__icon">
       <span class="sb__label">{{ item.label }}</span>
     </a>
+
+
   </nav>
 
   <nav class="sb__nav sb__nav--footer" aria-label="Secondary">
     <a
       *ngFor="let item of itemsFooter()"
       class="sb__item"
-      [routerLink]="item.route"
+      [routerLink]="item.id === 'logout' ? null : item.route"
+      (click)="onItemClick(item, $event)"
       routerLinkActive="is-active"
     >
       <img [ngSrc]="'/' + item.icon" width="18" height="18" alt="" class="sb__icon">
       <span class="sb__label">{{ item.label }}</span>
     </a>
-  </nav>
+  </nav>x
 </aside>

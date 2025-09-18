@@ -26,5 +26,22 @@ export class SidebarComponent {
   itemsMain = computed(() => this.filtered().filter(i => i.section === 'main'));
   itemsFooter = computed(() => this.filtered().filter(i => i.section === 'footer'));
 
-  toggle() { this.isCollapsed.update(v => !v); }
+  toggle() {
+    this.isCollapsed.update(v => !v);
+  }
+
+  getLink(item: MenuItem): string {
+    if (item.id === 'home' || item.route === '/dashboard') {
+      return this.auth.getHomeByRole();
+    }
+    return item.route;
+  }
+
+  async onItemClick(item: MenuItem, evt: Event) {
+    if (item.id === 'logout') {
+      evt.preventDefault();
+      await this.auth.logout();
+      window.location.replace('/auth/login');
+    }
+  }
 }

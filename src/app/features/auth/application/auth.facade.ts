@@ -4,7 +4,7 @@ import {RefreshSession} from '@feature/auth/application/usecases/refresh-session
 import {AuthRepository} from '@feature/auth/domain/auth.repository';
 import {Session} from '@feature/auth/domain/entities/session';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class AuthFacade {
   private loginUC = inject(LoginUser);
   private refreshUC = inject(RefreshSession);
@@ -12,7 +12,7 @@ export class AuthFacade {
 
   private static ACCESS_KEY = 'tt_access_token';
   private static REFRESH_KEY = 'tt_refresh_token';
-  private static USER_KEY   = 'tt_user';
+  private static USER_KEY = 'tt_user';
 
   private _session = signal<Session | null>(null);
 
@@ -39,13 +39,18 @@ export class AuthFacade {
   }
 
   async logout() {
-    await this.repo.logout();
-    this._session.set(null);
-    this.clearStorage();
+    try {
+      await this.repo.logout();
+    } catch {
+    } finally {
+      this._session.set(null);
+      this.clearStorage();
+      this.clearAuthCookies();
+    }
   }
 
   initFromStorage() {
-    if (typeof window === 'undefined') return; // por si SSR
+    if (typeof window === 'undefined') return;
     try {
       const accessToken = localStorage.getItem(AuthFacade.ACCESS_KEY) ?? undefined;
       const refreshToken = localStorage.getItem(AuthFacade.REFRESH_KEY) ?? undefined;
@@ -54,7 +59,7 @@ export class AuthFacade {
       if (!accessToken || !userRaw) return;
 
       const user = JSON.parse(userRaw);
-      const session: Session = { accessToken, refreshToken, user } as Session;
+      const session: Session = {accessToken, refreshToken, user} as Session;
       this._session.set(session);
     } catch {
       this.clearStorage();
@@ -76,5 +81,27 @@ export class AuthFacade {
     localStorage.removeItem(AuthFacade.ACCESS_KEY);
     localStorage.removeItem(AuthFacade.REFRESH_KEY);
     localStorage.removeItem(AuthFacade.USER_KEY);
+    const legacyKeys = [
+      'access_token', 'refresh_token', 'user',
+      'tt_access', 'tt_refresh', 'tt_user_json'
+    ];
+    for (const k of legacyKeys) localStorage.removeItem(k);
+    for (const k of legacyKeys) sessionStorage.removeItem(k);
+  }
+
+  private clearAuthCookies() {
+    if (typeof document === 'undefined') return;
+    const possible = ['access_token', 'refresh_token', 'jwt', 'rt', 'at'];
+    for (const name of possible) {
+      document.cookie = `${name}=; Max-Age=0; path=/;`;
+    }
+  }
+
+  getHomeByRole(): string {
+    const roles = this._session()?.user?.roles ?? [];
+    if (roles.includes('ADMINISTRATOR')) return '/dashboard/admin';
+    if (roles.includes('ATTENDANT')) return '/dashboard/attendant';
+    if (roles.includes('PATIENT')) return '/dashboard/patient';
+    return '/auth/login';
   }
 }

@@ -2,6 +2,8 @@ import {Routes} from '@angular/router';
 import {authGuard} from '@core/guards/auth.guard';
 import {activeAccountGuard} from '@core/guards/active-account.guard';
 import {MainLayoutComponent} from '@layout/main-layout/main-layout.component';
+import {redirectToRoleHomeGuard} from '@core/guards/redirect-to-role-home.guard';
+import {RedirectToRoleComponent} from '@core/components/redirect-to-role/edirect-to-role.component';
 
 export const routes: Routes = [
   {
@@ -10,11 +12,9 @@ export const routes: Routes = [
     canActivate: [authGuard, activeAccountGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-      {
-        path: 'dashboard',
-        loadChildren: () =>
-          import('@feature/dashboard/routes/dashboard.routes').then(m => m.dashboardRoutes),
-      },
+
+      { path: 'dashboard', component: RedirectToRoleComponent, canActivate: [redirectToRoleHomeGuard] },
+
       {
         path: 'dashboard/admin',
         loadChildren: () =>
