@@ -1,19 +1,21 @@
-<section class="auth-split">
-  <div class="left">
-    <div class="left-inner">
-      <h2 class="new-title">ARE YOU NEW?</h2>
-      <p class="new-sub">If you don’t have an account, you can create one</p>
-      <button class="btn-cream" routerLink="/auth/register">Create</button>
-    </div>
-  </div>
-
-  <div class="right">
-    <div class="brand">
-      <img ngSrc="ic_logo.png" width="342" height="266" alt="TukunTech" class="brand-logo" priority>
+<div class="auth-screen">
+  <section class="auth-split">
+    <div class="left">
+      <div class="left-inner">
+        <h2 class="new-title">ARE YOU NEW?</h2>
+        <p class="new-sub">If you don’t have an account, you can create one</p>
+        <button type="button" class="btn-cream" routerLink="/auth/register">Create</button>
+      </div>
     </div>
 
-    <h1 class="signin-title">SIGN IN</h1>
+    <div class="right">
+      <div class="brand">
+        <img ngSrc="ic_logo.png" width="342" height="266" alt="TukunTech" class="brand-logo" priority>
+      </div>
 
-    <app-login-form #formRef (submitCredentials)="onLogin($event)"></app-login-form>
-  </div>
-</section>
+      <h1 class="signin-title">SIGN IN</h1>
+
+      <app-login-form #formRef (submitCredentials)="onLogin($event)"></app-login-form>
+    </div>
+  </section>
+</div>
