@@ -1,4 +1,4 @@
-import {CommonModule, NgOptimizedImage} from '@angular/common';
+import {CommonModule} from '@angular/common';
 import {Component} from '@angular/core';
 
 type AlertItem = { icon: string; label: string; time: string; level?: 'low' | 'mid' | 'high' };

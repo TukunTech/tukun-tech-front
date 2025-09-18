@@ -18,17 +18,17 @@ export const routes: Routes = [
       {
         path: 'dashboard/admin',
         loadChildren: () =>
-          import('@feature/dashboard-admin/routes/admin.routes').then(m => m.adminDashboardRoutes),
+          import('@feature/dashboard/admin/routes/admin.routes').then(m => m.adminDashboardRoutes),
       },
       {
         path: 'dashboard/attendant',
         loadChildren: () =>
-          import('@feature/dashboard-attendant/routes/attendant.routes').then(m => m.attendantDashboardRoutes),
+          import('@feature/dashboard/attendant/routes/attendant.routes').then(m => m.attendantDashboardRoutes),
       },
       {
         path: 'dashboard/patient',
         loadChildren: () =>
-          import('@feature/dashboard-patient/routes/patient.routes').then(m => m.patientDashboardRoutes),
+          import('@feature/dashboard/patient/routes/patient.routes').then(m => m.patientDashboardRoutes),
       },
     ],
   },
