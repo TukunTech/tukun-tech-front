@@ -22,7 +22,7 @@ export const MENU_ITEMS: MenuItem[] = [
     id: 'vitals',
     label: 'Vital Sings',
     icon: 'ic_vital_sings.png',
-    route: '/patient/vitals',
+    route: '/vital-signs',
     section: 'main',
     roles: ['PATIENT', 'ATTENDANT', 'ADMINISTRATOR']
   },
@@ -30,7 +30,7 @@ export const MENU_ITEMS: MenuItem[] = [
     id: 'history',
     label: 'History',
     icon: 'ic_history.png',
-    route: '/patient/history',
+    route: '/history',
     section: 'main',
     roles: ['PATIENT', 'ATTENDANT', 'ADMINISTRATOR']
   },

@@ -30,6 +30,36 @@ export const routes: Routes = [
         loadChildren: () =>
           import('@feature/dashboard/patient/routes/patient.routes').then(m => m.patientDashboardRoutes),
       },
+      {
+        path: 'patient',
+        loadChildren: () => import('@feature/patient/patient-routes').then(
+          (m) => m.patientRoutes,
+        ),
+      },
+      {
+        path: 'subscription',
+        loadChildren: () => import('@feature/subscription/subscription-routes').then(
+          (m) => m.subscriptionRoutes,
+        )
+      },
+      {
+        path: 'support',
+        loadChildren: () => import('@feature/support/support-routes').then(
+          (m) => m.supportRoutes,
+        )
+      },
+      {
+        path: 'history',
+        loadChildren: () =>import('@feature/history/history-routes').then(
+          (m) => m.historyRoutes,
+        )
+      },
+      {
+        path: 'vital-signs',
+        loadChildren: () => import('@feature/vital-signs/vital-signs-routes').then(
+          (m) => m.vitalSignsRoutes,
+        )
+      }
     ],
   },
   {
