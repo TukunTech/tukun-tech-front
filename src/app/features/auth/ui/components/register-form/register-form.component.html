@@ -1,0 +1,47 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="reg-form">
+  <input placeholder="name" formControlName="name"/>
+  <input placeholder="last name" formControlName="lastName"/>
+  <input placeholder="dni" formControlName="dni"/>
+  <input placeholder="age" type="number" formControlName="age"/>
+
+  <div class="row">
+    <select formControlName="sex">
+      <option value="" disabled selected>sex</option>
+      <option value="F">Female</option>
+      <option value="M">Male</option>
+      <option value="O">Other</option>
+    </select>
+
+    <select formControlName="bloodGroup">
+      <option value="" disabled selected>blood group</option>
+      <option>A+</option>
+      <option>A-</option>
+      <option>B+</option>
+      <option>B-</option>
+      <option>AB+</option>
+      <option>AB-</option>
+      <option>O+</option>
+      <option>O-</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <select formControlName="nationality">
+      <option value="" disabled selected>nationality</option>
+      <option>Peru</option>
+      <option>Other</option>
+    </select>
+
+    <select formControlName="allergy">
+      <option value="" disabled selected>allergy</option>
+      <option>None</option>
+      <option>Penicillin</option>
+      <option>Other</option>
+    </select>
+  </div>
+
+  <input placeholder="email" type="email" formControlName="email"/>
+  <input placeholder="password" type="password" formControlName="password"/>
+
+  <button class="btn-create" type="submit">Create</button>
+</form>
