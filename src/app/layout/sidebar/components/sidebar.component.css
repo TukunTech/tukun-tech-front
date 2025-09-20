@@ -76,11 +76,13 @@
   color: var(--fg);
   padding: 10px 12px;
   border-radius: 14px;
-  transition: background .15s ease, color .15s ease;
+  transition: transform 0.20s ease, box-shadow 0.25s ease;
 }
 
 .sb__item:hover {
   background: var(--bg-active);
+  transition: 0.4s;
+  transform: scale(1.04);
 }
 
 .sb__item.is-active {
@@ -116,3 +118,17 @@
   display: none;
 }
 
+.sb {
+  transition: width 0.5s ease, min-width 0.5s ease;
+}
+
+.sb__brand-name,
+.sb__label {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.sb--collapsed .sb__brand-name,
+.sb--collapsed .sb__label {
+  opacity: 0;
+  transform: translateX(-10px);
+}
