@@ -39,7 +39,6 @@
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.5);
-  /* efecto zoom */
   transition: transform 0.20s ease, box-shadow 0.25s ease;
 }
 
