@@ -1,0 +1,73 @@
+<div class="page">
+  <h1 class="page__title">Support</h1>
+  <p class="page__subtitle">if you have any problem contact us</p>
+
+  <div class="grid">
+    <!-- Left: Contact Form -->
+    <section class="card form-card" aria-labelledby="form-title">
+      <div class="card__header card__header--row">
+        <h2 id="form-title" class="card__title">COMPLETE THE FORM</h2>
+
+      </div>
+
+      <form class="support-form" (submit)="$event.preventDefault()">
+        <label class="form__label">enter an email:</label>
+        <input class="form__input" type="email" placeholder="name@example.com" />
+
+        <label class="form__label">enter your name:</label>
+        <input class="form__input" type="text" placeholder="Your name" />
+
+        <label class="form__label">enter a subject:</label>
+        <input class="form__input" type="text" placeholder="Subject" />
+
+        <label class="form__label">describe the problem:</label>
+        <textarea class="form__textarea" rows="6" placeholder="Explain the issue..."></textarea>
+
+        <div class="form__actions">
+          <button class="btn btn--pill" type="submit">send</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Right: FAQ -->
+    <aside class="card faq-card" aria-labelledby="faq-title">
+      <div class="card__header card__header--row">
+        <h2 id="faq-title" class="card__title">FREQUENTLY QUESTIONS</h2>
+        <div class="card__icon">⤢</div>
+      </div>
+
+      <p class="muted">take a look</p>
+
+      <ul class="faq__list">
+        <li class="faq__item">
+          <p class="faq__q">What vital signs does TukunTech measure?</p>
+          <p class="faq__a">
+            It currently measures heart rate, oxygen saturation (SpO₂), and body temperature.
+            These parameters are key to prevention and early detection of cardiovascular and respiratory problems.
+          </p>
+        </li>
+
+        <li class="faq__item">
+          <p class="faq__q">Is it necessary to have an internet connection to use the system?</p>
+          <p class="faq__a">
+            Yes, TukunTech relies on internet connectivity to send device data to the cloud so it can be viewed in real time on the web or mobile app.
+          </p>
+        </li>
+
+        <li class="faq__item">
+          <p class="faq__q">Who can access patient information?</p>
+          <p class="faq__a">
+            In the Individual Plan, only the primary user can access the patient's data. In the Family Plan, up to three family members or caregivers can simultaneously access the patient's data from the app.
+          </p>
+        </li>
+
+        <li class="faq__item">
+          <p class="faq__q">What do I do if I receive a red alert?</p>
+          <p class="faq__a">
+            You must follow the protocol prescribed by your primary care physician and, if an emergency is confirmed, immediately contact health services.
+          </p>
+        </li>
+      </ul>
+    </aside>
+  </div>
+</div>
