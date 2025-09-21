@@ -164,13 +164,16 @@
 }
 
 .btn--pill:hover {
-  filter: brightness(0.96);
-  transform: translateY(-1px);
   background-color: #000000;
   color: white;
-  transition: 0.3s;
+  transition: 0.5s;
+  filter: brightness(0.95);
 }
 
+.btn--pill:active {
+  transform: scale(0.80);
+
+}
 
 .faq-card {
   grid-column: 2;
