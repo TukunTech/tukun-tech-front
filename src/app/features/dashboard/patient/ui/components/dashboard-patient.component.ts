@@ -1,12 +1,13 @@
 import {CommonModule} from '@angular/common';
 import {Component} from '@angular/core';
+import {RouterLink} from '@angular/router';
 
 type AlertItem = { icon: string; label: string; time: string; level?: 'low' | 'mid' | 'high' };
 
 @Component({
   standalone: true,
   selector: 'app-patient-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard-patient.component.html',
   styleUrls: ['./dashboard-patient.component.css'],
 })

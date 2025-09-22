@@ -1,0 +1,52 @@
+<div class="subscription-container">
+  <h1 class="title">Subscription</h1>
+
+  <div class="plan-box">
+    <h2 class="plan-title">Plan information</h2>
+
+    <div class="content-grid">
+      <!-- Columna izquierda -->
+      <div class="left-cards">
+        <div class="card small-card reminder-card">
+          <h3 class="card-title">REMINDER</h3>
+          <div class="reminder-content">
+            <p>Your plan expires in:</p>
+            <p class="highlight">{{ daysLeft }} DAYS</p>
+          </div>
+        </div>
+
+        <div class="card small-card renew-card">
+          <h3 class="card-title">RENEW SUBSCRIPTION</h3>
+          <div class="renew-content">
+            <p>You are currently paying:</p>
+            <p class="highlight">{{ currentPrice }}$</p>
+          </div>
+          <p>Do you want to continue with us?</p>
+          <button class="renew-btn">renew</button>
+        </div>
+
+      </div>
+
+      <!-- Columna derecha -->
+      <div class="card big-card">
+        <h3 class="card-title">YOUR PLAN</h3>
+        <p class="subtitle">{{ planName }}</p>
+        <p>
+          Focused on people who want to maintain personal and preventive
+          control of their health status, whether an older adult or someone with
+          heart problems.
+        </p>
+        <ul>
+          <li>Access to the mobile and web application</li>
+          <li>
+            Real-time monitoring of heart rate, oxygen saturation, and temperature.
+          </li>
+          <li>Immediate alert notifications.</li>
+          <li>Record history and evolution charts.</li>
+          <li>Monthly or annual validity.</li>
+          <li>Connection of 1 device.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

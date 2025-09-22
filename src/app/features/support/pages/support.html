@@ -1,0 +1,11 @@
+<div *ngIf="isPatient" class="role-box">
+
+  <app-support-patient/>
+
+<div *ngIf="isAdmin" class="role-box">
+  Administrator view (placeholder)
+</div>
+
+<div *ngIf="!isPatient && !isAttendant && !isAdmin" class="role-box">
+  No role matched for this view.
+</div>
