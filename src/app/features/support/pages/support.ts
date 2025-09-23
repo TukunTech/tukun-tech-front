@@ -9,7 +9,6 @@ type AppRole = 'PATIENT' | 'ATTENDANT' | 'ADMINISTRATOR';
   selector: 'app-support',
   imports: [
     NgIf,
-    PatientSubscription,
     SupportPatient
   ],
   templateUrl: '/support.html',
