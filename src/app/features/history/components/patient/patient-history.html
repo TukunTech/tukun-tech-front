@@ -1,0 +1,40 @@
+<div class="history-container">
+  <h2 class="title">Alert History</h2>
+
+  <div class="history-card">
+    <div class="alert-grid">
+      <ng-container *ngFor="let record of historyRecords; let i = index">
+        <div
+          *ngIf="i < 10"
+          class="alert-box"
+          [ngClass]="record.type"
+        >
+          <div class="alert-header">
+            <span class="date">{{ record.date }}</span>
+            <span class="message">{{ record.message }}</span>
+          </div>
+
+          <div class="alert-body">
+            <div class="metric">
+              <span>beats per minute</span>
+              <i class="material-icons">favorite</i>
+              <span>{{ record.hr_bpm }} Lpm</span>
+            </div>
+
+            <div class="metric">
+              <span>oxygenation</span>
+              <i class="material-icons">opacity</i>
+              <span>{{ record.spo2 }}%</span>
+            </div>
+
+            <div class="metric">
+              <span>temperature</span>
+              <i class="material-icons">device_thermostat</i>
+              <span>{{ record.temperature }}°C</span>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
