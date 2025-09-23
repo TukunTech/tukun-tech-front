@@ -1,6 +1,7 @@
 import {Component, inject} from '@angular/core';
 import {AuthFacade} from '@feature/auth/application/auth.facade';
 import {NgIf} from '@angular/common';
+import {PatientHistoryComponent} from '@feature/history/components/patient/patient-history';
 
 
 type AppRole = 'PATIENT' | 'ATTENDANT' | 'ADMINISTRATOR';
@@ -9,6 +10,7 @@ type AppRole = 'PATIENT' | 'ATTENDANT' | 'ADMINISTRATOR';
   selector: 'app-history',
   imports: [
     NgIf,
+    PatientHistoryComponent,
 
   ],
   templateUrl: '/history.html'
