@@ -11,7 +11,6 @@ type AppRole = 'PATIENT' | 'ATTENDANT' | 'ADMINISTRATOR';
   selector: 'app-subscription',
   imports: [
     NgIf,
-    PatientPersonalInfoComponent,
     PatientSubscription
   ],
   templateUrl: './subscription.html',
