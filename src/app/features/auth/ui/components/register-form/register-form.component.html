@@ -43,5 +43,14 @@
   <input placeholder="email" type="email" formControlName="email"/>
   <input placeholder="password" type="password" formControlName="password"/>
 
+  <select formControlName="role">
+    <option value="" disabled selected>role</option>
+    <option value="PATIENT">Patient</option>
+    <option value="ATTENDANT">Attendant</option>
+  </select>
+
   <button class="btn-create" type="submit">Create</button>
+
+  <app-toast-container></app-toast-container>
+
 </form>
