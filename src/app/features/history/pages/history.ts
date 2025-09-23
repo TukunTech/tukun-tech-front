@@ -1,12 +1,16 @@
 import {Component, inject} from '@angular/core';
 import {AuthFacade} from '@feature/auth/application/auth.facade';
+import {NgIf} from '@angular/common';
 
 
 type AppRole = 'PATIENT' | 'ATTENDANT' | 'ADMINISTRATOR';
 
 @Component({
   selector: 'app-history',
-  imports: [],
+  imports: [
+    NgIf,
+
+  ],
   templateUrl: '/history.html'
 })
 
