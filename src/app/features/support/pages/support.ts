@@ -1,7 +1,6 @@
 import {Component, inject} from '@angular/core';
 import {AuthFacade} from '@feature/auth/application/auth.facade';
 import {NgIf} from '@angular/common';
-import {PatientSubscription} from '@feature/subscription/components/patient/patient-subscription/patient-subscription';
 import {SupportPatient} from '@feature/support/components/patient/support-patient/support-patient';
 type AppRole = 'PATIENT' | 'ATTENDANT' | 'ADMINISTRATOR';
 
@@ -9,7 +8,6 @@ type AppRole = 'PATIENT' | 'ATTENDANT' | 'ADMINISTRATOR';
   selector: 'app-support',
   imports: [
     NgIf,
-    PatientSubscription,
     SupportPatient
   ],
   templateUrl: '/support.html',
