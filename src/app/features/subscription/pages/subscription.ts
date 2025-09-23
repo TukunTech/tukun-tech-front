@@ -1,9 +1,6 @@
 import {Component, inject} from '@angular/core';
 import {AuthFacade} from '@feature/auth/application/auth.facade';
 import {NgIf} from '@angular/common';
-import {
-  PatientPersonalInfoComponent
-} from '@feature/patient/components/patient/personal-info/patient-personal-info.component';
 import {PatientSubscription} from '@feature/subscription/components/patient/patient-subscription/patient-subscription';
 type AppRole = 'PATIENT' | 'ATTENDANT' | 'ADMINISTRATOR';
 
@@ -11,7 +8,6 @@ type AppRole = 'PATIENT' | 'ATTENDANT' | 'ADMINISTRATOR';
   selector: 'app-subscription',
   imports: [
     NgIf,
-    PatientPersonalInfoComponent,
     PatientSubscription
   ],
   templateUrl: './subscription.html',
