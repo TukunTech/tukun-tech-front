@@ -1,0 +1,83 @@
+<div class="page">
+  <h1 class="page__title">Vital Signs</h1>
+
+  <div class="grid">
+    <section class="card alerts">
+      <header class="card__header">
+        <h2 class="card__title">LATEST ALERTS</h2>
+        <div class="card__rule"></div>
+        <p class="muted">Here you can see the latest alerts</p>
+      </header>
+
+      <ul class="alerts__list">
+        <li class="alerts__item" *ngFor="let a of latestAlerts">
+          <div class="pill">
+            <img class="pill__icon" [src]="a.icon" width="24" height="24" alt="">
+            <span class="pill__label">{{ a.label }}</span>
+            <span class="pill__time">{{ a.time }}</span>
+          </div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="card status">
+      <header class="card__header">
+        <h2 class="card__title">DEVICE STATUS</h2>
+        <div class="card__rule"></div>
+      </header>
+
+      <div class="status__row">
+        <span class="status__dot"></span>
+        <span class="status__text">connected</span>
+      </div>
+    </section>
+
+    <div class="simulator">
+      <label for="mode">Simulation Mode:</label>
+      <select id="mode" (change)="changeMode($any($event.target).value)">
+        <option value="normal">Normal</option>
+        <option value="danger">Medio Peligroso</option>
+        <option value="emergency">Emergencia</option>
+      </select>
+    </div>
+
+    <div class="metrics">
+      <div class="metric">
+        <h3 class="metric__label">beats per minute <small>Lpm</small></h3>
+        <div class="metric__card">
+          <div class="metric__left">
+            <img class="metric__icon" src="ic_heart_vs.png" alt="" />
+            <svg class="metric__spark" viewBox="0 0 120 28" aria-hidden="true">
+              <polyline class="metric__spark-line" [attr.points]="bpmPolyline"></polyline>
+            </svg>
+          </div>
+          <div class="metric__value">{{ bpm }}</div>
+        </div>
+      </div>
+
+      <div class="metric">
+        <h3 class="metric__label">oxygenation <small>SpO₂</small></h3>
+        <div class="metric__card">
+          <div class="metric__left">
+            <img class="metric__icon" src="ic_oxygen_vs.png" alt="" />
+            <svg class="metric__spark" viewBox="0 0 120 28" aria-hidden="true">
+              <polyline class="metric__spark-line" [attr.points]="spo2Polyline"></polyline>
+            </svg>
+          </div>
+          <div class="metric__value">{{ spo2 }}%</div>
+        </div>
+      </div>
+
+      <div class="metric">
+        <h3 class="metric__label">Temperature <small>Celsius</small></h3>
+        <div class="metric__card">
+          <div class="metric__left">
+            <img class="metric__icon" src="ic_temp_vs.png" alt="" />
+          </div>
+          <div class="metric__value">36,2° C</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
