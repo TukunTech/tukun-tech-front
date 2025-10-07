@@ -1,0 +1,96 @@
+<section class="pi-wrap">
+  <header class="pi-header">
+    <h1 class="pi-title">Patient</h1>
+    <h2 class="pi-subtitle">Personal information</h2>
+  </header>
+
+  <ng-container *ngIf="data(); else loading">
+    <div class="pi-card">
+      <div class="pi-grid">
+        <label class="pi-label">name</label>
+        <input
+          class="pi-input"
+          type="text"
+          [value]="form().name"
+          (input)="update('name', $any($event.target).value)"
+        />
+
+        <label class="pi-label">last name</label>
+        <input
+          class="pi-input"
+          type="text"
+          [value]="form().lastName"
+          (input)="update('lastName', $any($event.target).value)"
+        />
+
+        <label class="pi-label">dni</label>
+        <input
+          class="pi-input"
+          type="text"
+          [value]="form().dni"
+          (input)="update('dni', $any($event.target).value)"
+        />
+
+        <label class="pi-label">age</label>
+        <input
+          class="pi-input"
+          type="number"
+          min="0"
+          [value]="form().age"
+          (input)="update('age', $any($event.target).value)"
+        />
+
+        <label class="pi-label">sex</label>
+        <select
+          class="pi-input"
+          [value]="form().sex"
+          (change)="update('sex', $any($event.target).value)"
+        >
+          <option *ngFor="let g of GENDERS" [value]="g">{{ pretty(g) }}</option>
+        </select>
+
+        <label class="pi-label">blood group</label>
+        <select
+          class="pi-input"
+          [value]="form().bloodGroup"
+          (change)="update('bloodGroup', $any($event.target).value)"
+        >
+          <option *ngFor="let b of BLOOD_GROUPS" [value]="b">{{ pretty(b) }}</option>
+        </select>
+
+        <label class="pi-label">nationality</label>
+        <select
+          class="pi-input"
+          [value]="form().nationality"
+          (change)="update('nationality', $any($event.target).value)"
+        >
+          <option *ngFor="let n of NATIONALITIES" [value]="n">{{ pretty(n) }}</option>
+        </select>
+
+        <label class="pi-label">allergy</label>
+        <select
+          class="pi-input"
+          [value]="form().allergy"
+          (change)="update('allergy', $any($event.target).value)"
+        >
+          <option *ngFor="let a of ALLERGIES" [value]="a">{{ pretty(a) }}</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="pi-question">Confirm your changes</p>
+    <div class="pi-actions" style="gap: 10px;">
+      <button class="pi-btn" type="button" (click)="onCancel()">cancel</button>
+      <button class="pi-btn" type="button" [disabled]="!canSubmit()" (click)="onSubmit()">save</button>
+    </div>
+  </ng-container>
+
+  <ng-template #loading>
+    <div class="pi-card">
+      <div class="pi-skeleton-grid">
+        <div class="pi-skel-label" *ngFor="let _ of placeholders"></div>
+        <div class="pi-skel-input" *ngFor="let _ of placeholders"></div>
+      </div>
+    </div>
+  </ng-template>
+</section>
