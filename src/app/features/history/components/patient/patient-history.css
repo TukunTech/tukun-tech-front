@@ -1,0 +1,95 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #121212;
+}
+
+.history-container {
+  min-height: 100vh;
+  padding: 2rem;
+  background-color: #121212;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  font-family: Josefin Sans, sans-serif;
+}
+
+.history-card {
+  background-color: #1c1c1c;
+  padding: 1.5rem;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 900px;
+}
+
+.alert-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* Cada alerta */
+.alert-box {
+  padding: 1rem;
+  border-radius: 10px;
+  color: #fff;
+}
+
+/* Colores de estado */
+.green {
+  background-color: #1e8c3a;
+}
+
+.blue {
+  background-color: #1e3d8c;
+}
+
+.red {
+  background-color: #8c1e1e;
+}
+
+.gray {
+  background-color: #444;
+}
+
+/* Header */
+.alert-header {
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.alert-header .date {
+  display: block;
+  font-weight: bold;
+}
+
+.alert-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.metric {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 1rem;
+}
+
+.metric i {
+  font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .alert-grid {
+    grid-template-columns: 1fr;
+  }
+}
