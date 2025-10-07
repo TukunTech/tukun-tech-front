@@ -1,5 +1,7 @@
-import {Component, EventEmitter, Input, Output, signal} from '@angular/core';
+import {Component, effect, inject, Input, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {Router} from '@angular/router';
+import {PatientStore} from '@feature/patient/data/patient.store';
 
 export interface PatientPersonalInfo {
   name: string;
@@ -21,16 +23,29 @@ export interface PatientPersonalInfo {
 })
 export class PatientPersonalInfoComponent {
   private readonly _data = signal<PatientPersonalInfo | null>(null);
+  readonly data = this._data;
+
+  private router = inject(Router);
+  private store = inject(PatientStore);
 
   @Input('data')
   set setData(value: PatientPersonalInfo | null | undefined) {
     this._data.set(value ?? null);
   }
 
-  @Output() requestUpdate = new EventEmitter<void>();
-  onRequestUpdate() { this.requestUpdate.emit(); }
+  placeholders = Array.from({length: 8});
 
-  readonly data = this._data;
+  constructor() {
+    effect(() => {
+      const storeData = this.store.patient();
+      if (storeData) this._data.set(storeData);
+    });
+  }
 
-  placeholders = Array.from({ length: 8 });
+  goToUpdate() {
+    const current = this.data();
+    if (!current) return;
+    this.store.set(current);
+    this.router.navigate(['/patient/update']);
+  }
 }
