@@ -2,10 +2,10 @@ import {inject, Injectable} from '@angular/core';
 import {AuthRepository} from '@feature/auth/domain/auth.repository';
 import {HttpClient} from '@angular/common/http';
 import {LocalTokenStore} from '@feature/auth/infrastructure/storage/token-store.local';
-import {AuthFacade} from '@feature/auth/application/auth.facade';
 import {Session} from '@feature/auth/domain/entities/session';
 import {AUTH_API} from '@feature/auth/infrastructure/http/auth.api';
 import {toSession} from '@feature/auth/infrastructure/mappers/auth.mapper';
+import {Registration} from '@feature/auth/domain/entities/registration';
 
 @Injectable()
 export class HttpAuthRepository extends AuthRepository {
@@ -35,4 +35,22 @@ export class HttpAuthRepository extends AuthRepository {
       this.store.clear();
     }
   }
+
+  override async register(data: Registration): Promise<Session> {
+    const body = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      dni: data.dni,
+      email: data.email,
+      password: data.password,
+      role: data.role,
+    };
+
+    const dto = await this.http.post<any>(AUTH_API.REGISTER, body).toPromise();
+    const s = toSession(dto);
+    this.store.setTokens(s.accessToken, s.refreshToken);
+    return s;
+  }
+
+
 }

@@ -3,12 +3,16 @@ import {LoginUser} from '@feature/auth/application/usecases/login-user';
 import {RefreshSession} from '@feature/auth/application/usecases/refresh-session';
 import {AuthRepository} from '@feature/auth/domain/auth.repository';
 import {Session} from '@feature/auth/domain/entities/session';
+import {RegisterUser} from '@feature/auth/application/usecases/register-user';
+import {Registration} from '@feature/auth/domain/entities/registration';
 
 @Injectable({providedIn: 'root'})
 export class AuthFacade {
   private loginUC = inject(LoginUser);
   private refreshUC = inject(RefreshSession);
   private repo = inject(AuthRepository);
+  private registerUC = inject(RegisterUser);
+
 
   private static ACCESS_KEY = 'tt_access_token';
   private static REFRESH_KEY = 'tt_refresh_token';
@@ -47,6 +51,13 @@ export class AuthFacade {
       this.clearStorage();
       this.clearAuthCookies();
     }
+  }
+
+  async register(data: Registration) {
+    const s = await this.registerUC.exec(data);
+    this._session.set(s);
+    this.saveToStorage(s);
+    return s;
   }
 
   initFromStorage() {

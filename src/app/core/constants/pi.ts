@@ -4,7 +4,8 @@ export const API_CONSTANTS = {
     LOGIN: 'login',
     REFRESH_TOKEN: 'refresh',
     LOGOUT: 'logout',
-    ME: 'me'
+    ME: 'me',
+    REGISTER: 'register'
   },
   USER: {
     CONTROLLER: 'users',

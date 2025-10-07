@@ -1,0 +1,12 @@
+<div class="tt-toast-wrap">
+  <div class="tt-toast"
+       *ngFor="let t of toasts()"
+       [class.success]="t.kind==='success'"
+       [class.warning]="t.kind==='warning'"
+       [class.error]="t.kind==='error'"
+       [class.info]="t.kind==='info'">
+    <span class="icon">✔</span>
+    <span class="msg">{{ t.text }}</span>
+    <button class="close" type="button" (click)="close(t.id)">×</button>
+  </div>
+</div>
