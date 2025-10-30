@@ -1,0 +1,71 @@
+<div class="onboarding-container">
+  <h1 class="title">Complete Patient Profile</h1>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="form-grid">
+    <div class="form-field">
+      <label>First Name</label>
+      <input type="text" formControlName="firstName" placeholder="Enter your first name"/>
+    </div>
+
+    <div class="form-field">
+      <label>Last Name</label>
+      <input type="text" formControlName="lastName" placeholder="Enter your last name"/>
+    </div>
+
+    <div class="form-field">
+      <label>National ID (DNI)</label>
+      <input
+        type="text"
+        formControlName="dni"
+        inputmode="numeric"
+        pattern="\d{8}"
+        maxlength="8"
+        placeholder="8 digits"
+      />
+      <small class="error" *ngIf="form.get('dni')?.hasError('pattern') && form.get('dni')?.touched">
+        DNI must have exactly 8 digits.
+      </small>
+    </div>
+
+    <div class="form-field">
+      <label>Age</label>
+      <input type="number" formControlName="age" placeholder="Enter your age"/>
+    </div>
+
+    <div class="form-field">
+      <label>Gender</label>
+      <select formControlName="gender">
+        <option value="" disabled>Select...</option>
+        <option *ngFor="let op of genders" [value]="op.value">{{ op.label }}</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Blood Type</label>
+      <select formControlName="bloodGroup">
+        <option value="" disabled>Select...</option>
+        <option *ngFor="let op of bloodGroups" [value]="op.value">{{ op.label }}</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Nationality</label>
+      <select formControlName="nationality">
+        <option value="" disabled>Select...</option>
+        <option *ngFor="let op of nationalities" [value]="op.value">{{ op.label }}</option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Allergy</label>
+      <select formControlName="allergy">
+        <option value="" disabled>Select...</option>
+        <option *ngFor="let op of allergies" [value]="op.value">{{ op.label }}</option>
+      </select>
+    </div>
+
+    <button type="submit" [disabled]="form.invalid || saving">
+      {{ saving ? 'Saving...' : 'Save and Continue' }}
+    </button>
+  </form>
+</div>
