@@ -1,39 +1,23 @@
 <form [formGroup]="form" (ngSubmit)="submit()" class="reg-form">
-  <input placeholder="First name" formControlName="firstName" required/>
-  <input placeholder="Last name" formControlName="lastName" required/>
-  <input placeholder="DNI" formControlName="dni" required/>
-  <input placeholder="Age" type="number" formControlName="age" min="0" max="130" required/>
 
-  <div class="row">
-    <select formControlName="gender" required>
-      <option [ngValue]="null" disabled>Gender</option>
-      <option *ngFor="let g of genders" [ngValue]="g">{{ g }}</option>
-    </select>
+  <input
+    placeholder="email"
+    type="email"
+    formControlName="email"
+    autocomplete="email"
+  />
 
-    <select formControlName="bloodGroup" required>
-      <option [ngValue]="null" disabled>Blood group</option>
-      <option *ngFor="let b of bloodGroups" [ngValue]="b">{{ b }}</option>
-    </select>
-  </div>
+  <input
+    placeholder="password"
+    type="password"
+    formControlName="password"
+    autocomplete="new-password"
+  />
 
-  <div class="row">
-    <select formControlName="nationality" required>
-      <option [ngValue]="null" disabled>Nationality</option>
-      <option *ngFor="let n of nationalities" [ngValue]="n">{{ n }}</option>
-    </select>
-
-    <select formControlName="allergy" required>
-      <option [ngValue]="null" disabled>Allergy</option>
-      <option *ngFor="let a of allergies" [ngValue]="a">{{ a }}</option>
-    </select>
-  </div>
-
-  <input placeholder="Email" type="email" formControlName="email" autocomplete="email" required/>
-  <input placeholder="Password" type="password" formControlName="password" autocomplete="new-password" required/>
-
-  <select formControlName="role" required>
-    <option [ngValue]="null" disabled>Role</option>
-    <option *ngFor="let r of roles" [ngValue]="r">{{ r }}</option>
+  <select formControlName="role">
+    <option value="" disabled selected>role</option>
+    <option value="PATIENT">Patient</option>
+    <option value="ATTENDANT">Attendant</option>
   </select>
 
   <button class="btn-create" type="submit">Create</button>
