@@ -3,6 +3,7 @@ import {HttpErrorResponse, HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequ
 import {inject} from '@angular/core';
 import {AuthFacade} from '@feature/auth/application/auth.facade';
 import {LocalTokenStore} from '@feature/auth/infrastructure/storage/token-store.local';
+import {environment} from '@env/environment';
 
 let isRefreshing = false;
 const token$ = new BehaviorSubject<string | null>(null);
@@ -12,7 +13,13 @@ export const authTokenInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown
   const facade = inject(AuthFacade);
 
   const at = store.getAccess();
-  if (at && !/^https?:\/\//i.test(req.url)) {
+
+  const isAbsolute = /^https?:\/\//i.test(req.url);
+  const isApiUrl =
+    (!isAbsolute && (req.url.startsWith('/api/') || req.url.includes('/api/v1/'))) ||
+    (isAbsolute && (req.url.startsWith(environment.apiUrl) || req.url.includes('/api/v1/')));
+
+  if (at && isApiUrl && !req.headers.has('Authorization')) {
     req = req.clone({setHeaders: {Authorization: `Bearer ${at}`}});
   }
 
@@ -34,8 +41,9 @@ export const authTokenInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown
           facade.refresh(rt).then(s => {
             store.setTokens(s.accessToken, s.refreshToken);
             token$.next(s.accessToken);
-            next(req.clone({setHeaders: {Authorization: `Bearer ${s.accessToken}`}}))
-              .subscribe(sub);
+
+            const retried = req.clone({setHeaders: {Authorization: `Bearer ${s.accessToken}`}});
+            next(retried).subscribe(sub);
           }).catch(e => {
             store.clear();
             facade.setSession(null);
@@ -49,7 +57,10 @@ export const authTokenInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown
       return token$.pipe(
         filter((t): t is string => t !== null),
         take(1),
-        switchMap(t => next(req.clone({setHeaders: {Authorization: `Bearer ${t}`}})))
+        switchMap(t => {
+          const retried = req.clone({setHeaders: {Authorization: `Bearer ${t}`}});
+          return next(retried);
+        })
       );
     }),
     finalize(() => {
