@@ -8,7 +8,6 @@ import {toSession} from '@feature/auth/infrastructure/mappers/auth.mapper';
 import {Registration} from '@feature/auth/domain/entities/registration';
 import {firstValueFrom} from 'rxjs';
 import {RegisterRequest} from '@feature/auth/infrastructure/http/dtos/register.request';
-import {Role} from '@feature/auth/domain/entities/user';
 
 @Injectable()
 export class HttpAuthRepository extends AuthRepository {
@@ -40,25 +39,15 @@ export class HttpAuthRepository extends AuthRepository {
   }
 
   override async register(data: Registration): Promise<Session> {
-    const body: RegisterRequest = {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      dni: data.dni,
+    const body = {
       email: data.email,
       password: data.password,
-      role: data.role as any,
-      gender: data.gender as any,
-      age: data.age as any,
-      bloodGroup: data.bloodGroup as any,
-      nationality: data.nationality as any,
-      allergy: data.allergy as any,
+      role: data.role,
     };
 
-    const dto = await firstValueFrom(this.http.post<any>(AUTH_API.REGISTER, body));
+    const dto = await this.http.post<any>(AUTH_API.REGISTER, body).toPromise();
     const s = toSession(dto);
     this.store.setTokens(s.accessToken, s.refreshToken);
     return s;
   }
-
-
 }
