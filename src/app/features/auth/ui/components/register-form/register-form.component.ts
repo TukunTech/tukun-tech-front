@@ -2,15 +2,11 @@ import {Component, inject} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
 import {
-  ALLERGIES,
-  BLOOD_GROUPS,
-  GENDERS,
-  NATIONALITIES,
   Registration,
   Role
 } from '@feature/auth/domain/entities/registration';
 import {AuthFacade} from '@feature/auth/application/auth.facade';
-import {Router, RouterLink} from '@angular/router';
+import {Router} from '@angular/router';
 import {ToastService} from '@core/ui/toast/toast.service';
 import {ToastContainerComponent} from '@core/ui/toast/components/toast-container.component';
 
@@ -28,28 +24,11 @@ export class RegisterFormComponent {
   private toast = inject(ToastService);
 
   roles: Role[] = ['PATIENT', 'ATTENDANT'];
-  genders = GENDERS;
-  bloodGroups = BLOOD_GROUPS;
-  nationalities = NATIONALITIES;
-  allergies = ALLERGIES;
 
   form = this.fb.group({
-    firstName: ['', [Validators.required, Validators.minLength(2)]],  // antes "name"
-    lastName: ['', [Validators.required, Validators.minLength(2)]],
-    dni: ['', [Validators.required, Validators.pattern(/^\d{8,12}$/)]],
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [
-      Validators.required,
-      Validators.minLength(8),
-      Validators.pattern(/^(?=.*[A-Za-z])(?=.*\d).+$/) // 1 letra + 1 número
-    ]],
-    role: ['PATIENT', [Validators.required]],
-
-    gender: [null, [Validators.required]],          // antes "sex"
-    age: [null, [Validators.required, Validators.min(0), Validators.max(130)]],
-    bloodGroup: [null, [Validators.required]],
-    nationality: [null, [Validators.required]],
-    allergy: [null, [Validators.required]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
+    role: ['', Validators.required],
   });
 
   async submit() {
@@ -77,3 +56,4 @@ export class RegisterFormComponent {
     }
   }
 }
+
