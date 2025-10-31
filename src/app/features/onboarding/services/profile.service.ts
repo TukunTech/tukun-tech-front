@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {catchError, map, of} from 'rxjs';
+import {catchError, map, Observable, of} from 'rxjs';
 import {PatientProfile} from '@feature/onboarding/models/profile.model';
 import {environment} from '@env/environment';
 
@@ -27,4 +27,21 @@ export class ProfileService {
   createProfile(payload: Omit<PatientProfile, 'id' | 'userId'>) {
     return this.http.post<PatientProfile>(this.baseUrl, payload);
   }
+
+  updateMyProfile(payload: UpdateMyProfileRequest): Observable<PatientProfile> {
+    return this.http.put<PatientProfile>(`${this.baseUrl}/me`, payload).pipe(
+      map(res => res)
+    );
+  }
 }
+
+export type UpdateMyProfileRequest = {
+  firstName: string;
+  lastName: string;
+  dni: string;
+  age: number;
+  gender: 'MALE' | 'FEMALE' | string;
+  bloodGroup: 'O_POSITIVE' | 'A_POSITIVE' | string;
+  nationality: 'PERUVIAN' | string;
+  allergy: 'PENICILLIN' | string;
+};
