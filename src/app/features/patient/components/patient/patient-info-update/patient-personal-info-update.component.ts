@@ -1,7 +1,11 @@
 import {Component, computed, EventEmitter, inject, Input, Output, signal} from '@angular/core';
 import {CommonModule} from '@angular/common';
+import {ActivatedRoute, Router} from '@angular/router';
+
 import {PatientPersonalInfo, PatientStore} from '@feature/patient/data/patient.store';
-import {Router} from '@angular/router';
+import {ProfileService, UpdateMyProfileRequest} from '@feature/onboarding/services/profile.service';
+import {PatientProfile} from '@feature/onboarding/models/profile.model';
+import {mapProfileToPersonalInfo} from '@feature/patient/data/patient-profile.mapper';
 
 @Component({
   selector: 'app-patient-personal-info-update',
@@ -11,7 +15,13 @@ import {Router} from '@angular/router';
   styleUrls: ['./patient-personal-info-update.component.css']
 })
 export class PatientPersonalInfoUpdateComponent {
+  private readonly store = inject(PatientStore);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly profileService = inject(ProfileService);
+
   private readonly _data = signal<PatientPersonalInfo | null>(null);
+
   readonly form = signal<PatientPersonalInfo>({
     name: '',
     lastName: '',
@@ -23,9 +33,6 @@ export class PatientPersonalInfoUpdateComponent {
     allergy: 'NONE'
   });
 
-  private store = inject(PatientStore);
-  private router = inject(Router);
-
   @Input('data')
   set setData(value: PatientPersonalInfo | null | undefined) {
     this._data.set(value ?? null);
@@ -36,32 +43,6 @@ export class PatientPersonalInfoUpdateComponent {
 
   @Output() cancel = new EventEmitter<void>();
   @Output() submit = new EventEmitter<PatientPersonalInfo>();
-
-  ngOnInit() {
-    const patient = this.store.patient();
-    if (patient) {
-      this.form.set({...patient});
-      this._data.set(patient);
-    } else {
-      this.router.navigate(['/patient']);
-    }
-  }
-
-  onCancel() {
-    this.cancel.emit();
-    this.router.navigate(['/patient']);
-  }
-
-  onSubmit() {
-    const f = this.form();
-    const age = typeof f.age === 'string' && f.age.trim() !== '' ? Number(f.age) : f.age;
-    const updated = {...f, age};
-
-    this.store.set(updated);
-
-    this.submit.emit(updated);
-    this.router.navigate(['/patient']);
-  }
 
   readonly GENDERS = ['MALE', 'FEMALE', 'OTHER'];
   readonly BLOOD_GROUPS = [
@@ -80,13 +61,74 @@ export class PatientPersonalInfoUpdateComponent {
     this.form.update(curr => ({...curr, [key]: value}));
   }
 
-  pretty = (v: string) =>
-    v.toLowerCase().replace(/_/g, ' ').replace(/\b\w/g, m => m.toUpperCase());
-
+  pretty = (v: string) => v.toLowerCase().replace(/_/g, ' ').replace(/\b\w/g, m => m.toUpperCase());
   readonly canSubmit = computed(() => {
     const f = this.form();
-    return !!f.name && !!f.lastName && !!f.dni && String(f.dni).length >= 6 && !!f.age;
+    return !!f.name && !!f.lastName && !!f.dni && String(f.dni).length >= 6 && f.age !== '';
   });
-
   placeholders = Array.from({length: 8});
+
+  ngOnInit() {
+    const preload = this.route.snapshot.data['preload'] as PatientProfile | null;
+
+    if (preload) {
+      this.form.set({
+        name: preload.firstName ?? '',
+        lastName: preload.lastName ?? '',
+        dni: preload.dni ?? '',
+        age: preload.age ?? '',
+        sex: preload.gender ?? 'OTHER',
+        bloodGroup: preload.bloodGroup ?? 'O_POSITIVE',
+        nationality: preload.nationality ?? 'OTHER',
+        allergy: preload.allergy ?? 'NONE',
+      });
+
+      this._data.set(this.form());
+      return;
+    }
+
+    const fromStore = this.store.patient();
+    if (fromStore) {
+      this.form.set({...fromStore});
+      this._data.set(fromStore);
+      return;
+    }
+
+    this.router.navigate(['/patient']);
+  }
+
+  onCancel() {
+    this.cancel.emit();
+    this.router.navigate(['/patient']);
+  }
+
+  onSubmit() {
+    if (!this.canSubmit()) return;
+
+    const f = this.form();
+
+    const age = typeof f.age === 'string' && f.age.trim() !== '' ? Number(f.age) : (f.age as number);
+
+    const payload: UpdateMyProfileRequest = {
+      firstName: f.name,
+      lastName: f.lastName,
+      dni: f.dni,
+      age,
+      gender: f.sex as string,
+      bloodGroup: f.bloodGroup as string,
+      nationality: f.nationality as string,
+      allergy: f.allergy as string,
+    };
+
+    this.profileService.updateMyProfile(payload).subscribe({
+      next: (updated) => {
+        this.store.set(mapProfileToPersonalInfo(updated));
+
+        this.submit.emit(this.form());
+        this.router.navigate(['/patient']);
+      },
+      error: () => {
+      }
+    });
+  }
 }
