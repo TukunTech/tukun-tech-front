@@ -7,24 +7,53 @@
     <section class="card form-card" aria-labelledby="form-title">
       <div class="card__header card__header--row">
         <h2 id="form-title" class="card__title">COMPLETE THE FORM</h2>
-
       </div>
 
-      <form class="support-form" (submit)="$event.preventDefault()">
+      <form class="support-form" (submit)="$event.preventDefault(); onSubmit()">
         <label class="form__label">enter an email:</label>
-        <input class="form__input" type="email" placeholder="name@example.com" />
+        <input
+          class="form__input"
+          type="email"
+          placeholder="name@example.com"
+          [value]="form().email"
+          (input)="update('email', $any($event.target).value)"
+        />
 
         <label class="form__label">enter your name:</label>
-        <input class="form__input" type="text" placeholder="Your name" />
+        <input
+          class="form__input"
+          type="text"
+          placeholder="Your name"
+          [value]="form().name"
+          (input)="update('name', $any($event.target).value)"
+        />
 
         <label class="form__label">enter a subject:</label>
-        <input class="form__input" type="text" placeholder="Subject" />
+        <input
+          class="form__input"
+          type="text"
+          placeholder="Subject"
+          [value]="form().subject"
+          (input)="update('subject', $any($event.target).value)"
+        />
 
         <label class="form__label">describe the problem:</label>
-        <textarea class="form__textarea" rows="6" placeholder="Explain the issue..."></textarea>
+        <textarea
+          class="form__textarea"
+          rows="6"
+          placeholder="Explain the issue..."
+          [value]="form().description"
+          (input)="update('description', $any($event.target).value)"
+        ></textarea>
 
         <div class="form__actions">
-          <button class="btn btn--pill" type="submit">send</button>
+          <button
+            class="btn btn--pill"
+            type="submit"
+            [disabled]="!canSubmit() || loading()"
+          >
+            {{ loading() ? 'sending…' : 'send' }}
+          </button>
         </div>
       </form>
     </section>
@@ -50,21 +79,24 @@
         <li class="faq__item">
           <p class="faq__q">Is it necessary to have an internet connection to use the system?</p>
           <p class="faq__a">
-            Yes, TukunTech relies on internet connectivity to send device data to the cloud so it can be viewed in real time on the web or mobile app.
+            Yes, TukunTech relies on internet connectivity to send device data to the cloud so it can be viewed in real
+            time on the web or mobile app.
           </p>
         </li>
 
         <li class="faq__item">
           <p class="faq__q">Who can access patient information?</p>
           <p class="faq__a">
-            In the Individual Plan, only the primary user can access the patient's data. In the Family Plan, up to three family members or caregivers can simultaneously access the patient's data from the app.
+            In the Individual Plan, only the primary user can access the patient's data. In the Family Plan, up to three
+            family members or caregivers can simultaneously access the patient's data from the app.
           </p>
         </li>
 
         <li class="faq__item">
           <p class="faq__q">What do I do if I receive a red alert?</p>
           <p class="faq__a">
-            You must follow the protocol prescribed by your primary care physician and, if an emergency is confirmed, immediately contact health services.
+            You must follow the protocol prescribed by your primary care physician and, if an emergency is confirmed,
+            immediately contact health services.
           </p>
         </li>
       </ul>
