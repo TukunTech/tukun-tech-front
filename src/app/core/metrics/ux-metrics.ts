@@ -168,7 +168,21 @@ export function initUxMetrics(appRef: ApplicationRef, router: Router): void {
     } else if (ev instanceof NavigationEnd) {
       currentRoute = ev.urlAfterRedirects ?? ev.url ?? '';
       markRouteDone(currentRoute);
+
+      (async () => {
+        try {
+          const fps = await (window.fps_sample?.() ?? Promise.resolve(60));
+          const clamp = (n: number, min: number, max: number) => Math.max(min, Math.min(max, n));
+          const x = clamp(fps, 0, 60) / 60;
+          const eased = 1 - Math.pow(1 - x, 3);
+          const score = Math.round(eased * 100);
+          emitUx('perceived_fluidity_score', score, currentRoute);
+        } catch {
+          /* nada */
+        }
+      })();
     }
+
   });
 
   const stopFps = startFpsMonitor(() => currentRoute, {
