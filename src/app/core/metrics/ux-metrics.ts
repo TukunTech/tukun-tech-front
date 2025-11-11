@@ -1,7 +1,6 @@
 import {ApplicationRef} from '@angular/core';
 import {Router, NavigationStart, NavigationEnd} from '@angular/router';
 
-
 export interface UxMetricEvent {
   metric: 'end_to_end_latency_ms' | 'perceived_fluidity_score';
   value: number;
@@ -19,6 +18,33 @@ declare global {
 }
 
 
+function normalizeRoute(r?: string): string | undefined {
+  try {
+    if (!r) return undefined;
+    const u = new URL(r, location.origin);
+    return u.pathname || r;
+  } catch {
+    return r;
+  }
+}
+
+function defaultAttrs(): Record<string, string | number | boolean> {
+  const n: any = (navigator as any);
+  const conn = n?.connection?.effectiveType ?? '';
+  const dm = n?.deviceMemory ?? '';
+  const plat = (n?.userAgentData?.platform ?? navigator.platform ?? '').toString();
+  const uaBrand = (n?.userAgentData?.brands?.[0]?.brand ?? '').toString();
+
+  return {
+    page_visibility: document.visibilityState,
+    conn_type: conn,
+    device_mem_gb: dm || '',
+    platform: plat,
+    ua: uaBrand || '',
+  };
+}
+
+
 export function emitUx(
   metric: UxMetricEvent['metric'],
   value: number,
@@ -26,16 +52,26 @@ export function emitUx(
   attrs?: UxMetricEvent['attrs'],
 ): void {
   try {
+    const r = normalizeRoute(route);
+    const mergedAttrs: Record<string, any> = {
+      ...defaultAttrs(),
+      ...(attrs ?? {}),
+      type: metric,
+      ...(r ? {route: r} : {}),
+    };
+
     const evt: UxMetricEvent = {
       metric,
       value,
-      route,
-      attrs,
+      route: r,
+      attrs: mergedAttrs,
       at: new Date().toISOString(),
     };
+
     (window.__UXQ ||= []).push(evt);
     performance.mark?.(`ux:${metric}:mark`, {detail: evt as any});
   } catch {
+    /* no-op */
   }
 }
 
@@ -43,7 +79,7 @@ export function emitUx(
 export function markRouteStart(routeLabel: string): void {
   try {
     performance.mark?.(`ux:route:${routeLabel}:start`);
-  } catch {
+  } catch { /* no-op */
   }
 }
 
@@ -61,13 +97,15 @@ export function markRouteDone(routeLabel: string): number | undefined {
       ) as PerformanceMeasure[];
       const last = measures[measures.length - 1];
       const ms = Math.max(0, last?.duration ?? 0);
+
       emitUx('end_to_end_latency_ms', Math.round(ms), routeLabel);
       return ms;
     }
-  } catch {
+  } catch { /* no-op */
   }
   return undefined;
 }
+
 
 export interface FpsOptions {
   emaAlpha?: number;
@@ -103,7 +141,8 @@ export function startFpsMonitor(
     const score = fpsToScore(fps);
 
     if (ts - lastEmit >= emitEvery) {
-      emitUx('perceived_fluidity_score', Math.round(score), safeRoute(getRoute()));
+      const r = normalizeRoute(getRoute());
+      emitUx('perceived_fluidity_score', Math.round(score), r);
       lastEmit = ts;
     }
 
@@ -140,7 +179,7 @@ export function initUxMetrics(appRef: ApplicationRef, router: Router): void {
   window.addEventListener('beforeunload', () => {
     try {
       stopFps?.();
-    } catch {
+    } catch { /* no-op */
     }
   });
 }
@@ -155,16 +194,6 @@ function fpsToScore(fps: number): number {
   const x = clamp(fps, 0, max) / max;
   const eased = 1 - Math.pow(1 - x, 3);
   return eased * 100;
-}
-
-function safeRoute(r: string | undefined): string | undefined {
-  try {
-    if (!r) return undefined;
-    const u = new URL(r, location.origin);
-    return u.pathname || r;
-  } catch {
-    return r;
-  }
 }
 
 
