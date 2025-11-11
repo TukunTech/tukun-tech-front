@@ -1,5 +1,12 @@
 import {ApplicationRef} from '@angular/core';
-import {Router, NavigationStart, NavigationEnd} from '@angular/router';
+import {
+  Router,
+  NavigationStart,
+  NavigationEnd,
+  ActivatedRouteSnapshot,
+  NavigationCancel,
+  NavigationError
+} from '@angular/router';
 
 export interface UxMetricEvent {
   metric: 'end_to_end_latency_ms' | 'perceived_fluidity_score';
@@ -166,7 +173,9 @@ export function initUxMetrics(appRef: ApplicationRef, router: Router): void {
       currentRoute = ev.url ?? '';
       markRouteStart(currentRoute);
     } else if (ev instanceof NavigationEnd) {
-      currentRoute = ev.urlAfterRedirects ?? ev.url ?? '';
+      const treeRoute = routeLabelFromSnapshot(router.routerState.snapshot.root);
+      currentRoute = treeRoute || ev.urlAfterRedirects || ev.url || '/';
+
       markRouteDone(currentRoute);
 
       (async () => {
@@ -178,10 +187,13 @@ export function initUxMetrics(appRef: ApplicationRef, router: Router): void {
           const score = Math.round(eased * 100);
           emitUx('perceived_fluidity_score', score, currentRoute);
         } catch {
-          /* nada */
         }
       })();
+
+    } else if (ev instanceof NavigationCancel || ev instanceof NavigationError) {
+      currentRoute = router.url || currentRoute;
     }
+
 
   });
 
@@ -312,3 +324,15 @@ function fpsToScore(fps: number): number {
       requestAnimationFrame(tick);
     });
 })();
+
+
+function routeLabelFromSnapshot(s: ActivatedRouteSnapshot | null | undefined): string {
+  let out = '';
+  let cur: ActivatedRouteSnapshot | null | undefined = s;
+  while (cur) {
+    const seg = (cur.url ?? []).map(u => u.path).filter(Boolean).join('/');
+    if (seg) out += '/' + seg;
+    cur = cur.firstChild;
+  }
+  return out || '/';
+}
