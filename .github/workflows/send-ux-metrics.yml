@@ -1,0 +1,135 @@
+name: Send UX Metrics to Grafana
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  export-ux-metrics:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run UX Metrics collector (headless)
+        env:
+          FRONT_URL: "https://tukuntech-front.netlify.app"
+          E2E_USER: ${{ secrets.E2E_USER }}
+          E2E_PASS: ${{ secrets.E2E_PASS }}
+        run: |
+          set -euo pipefail
+          mkdir -p metrics
+          npm i playwright@1.48.2
+          npx playwright install chromium
+
+          cat > collect_ux_metrics.mjs <<'JS'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+
+          const FRONT_URL = process.env.FRONT_URL;
+          const USER = process.env.E2E_USER;
+          const PASS = process.env.E2E_PASS;
+
+          const browser = await chromium.launch({ headless: true });
+          const page = await browser.newPage({ viewport: { width: 1366, height: 800 } });
+
+          console.log("🌐 Opening front:", FRONT_URL);
+          await page.goto(`${FRONT_URL}/auth/login`, { waitUntil: 'domcontentloaded' });
+          await page.fill('input[name="username"], input[formcontrolname="username"]', USER);
+          await page.fill('input[name="password"], input[formcontrolname="password"]', PASS);
+          await Promise.all([
+            page.click('button[type="submit"]'),
+            page.waitForURL('**/dashboard/**', { timeout: 60000 }),
+          ]);
+
+          // Navega un poco por la app
+          const routes = ['/dashboard/patient', '/vital-signs', '/history', '/support'];
+          for (const r of routes) {
+            console.log("➡️", r);
+            await page.goto(`${FRONT_URL}${r}`, { waitUntil: 'networkidle' });
+            await page.waitForTimeout(1000);
+          }
+
+          // Extrae la cola UX
+          const data = await page.evaluate(() => window.__UXQ || []);
+          fs.writeFileSync('metrics/frontend_ux.json', JSON.stringify(data, null, 2));
+          console.log(`✅ Collected ${data.length} UX events.`);
+          await browser.close();
+          JS
+
+          node collect_ux_metrics.mjs
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install OTLP exporter
+        run: |
+          pip install \
+            opentelemetry-sdk==1.38.0 \
+            opentelemetry-api==1.38.0 \
+            opentelemetry-exporter-otlp==1.38.0
+
+      - name: Send UX metrics to Grafana Cloud
+        env:
+          OTLP_ENDPOINT: ${{ secrets.GRAFANA_OTLP_ENDPOINT }}
+          GRAFANA_ID: ${{ secrets.GRAFANA_INSTANCE_ID }}
+          GRAFANA_TOKEN: ${{ secrets.GRAFANA_API_TOKEN }}
+        run: |
+          python - << 'PY'
+          import os, json, time, base64
+          from opentelemetry.sdk.resources import Resource
+          from opentelemetry.sdk.metrics import MeterProvider
+          from opentelemetry.sdk.metrics.export import PeriodicExportingMetricReader
+          from opentelemetry.exporter.otlp.proto.http.metric_exporter import OTLPMetricExporter
+
+          endpoint = os.environ["OTLP_ENDPOINT"].rstrip("/") + "/v1/metrics"
+          uid = os.environ["GRAFANA_ID"]
+          token = os.environ["GRAFANA_TOKEN"]
+          basic = base64.b64encode(f"{uid}:{token}".encode("ascii")).decode("ascii")
+
+          exporter = OTLPMetricExporter(
+              endpoint=endpoint,
+              headers=(("Authorization", f"Basic {basic}"),),
+          )
+
+          resource = Resource.create({
+              "service.name": "frontend-ux",
+              "service.namespace": "ci"
+          })
+
+          reader = PeriodicExportingMetricReader(exporter, export_interval_millis=1000)
+          provider = MeterProvider(resource=resource, metric_readers=[reader])
+          meter = provider.get_meter("ux-metrics")
+
+          hist = meter.create_histogram("frontend_ux_ms")
+
+          with open("metrics/frontend_ux.json", "r", encoding="utf-8") as f:
+              items = json.load(f)
+
+          count = 0
+          for e in items:
+              dur = float(e.get("value", 0))
+              attrs = {
+                  "metric": e.get("metric"),
+                  "route": e.get("route", ""),
+              }
+              hist.record(dur, attributes=attrs)
+              count += 1
+
+          time.sleep(3)
+          print(f"✅ Sent {count} UX events to Grafana.")
+          PY
+
+      - name: Upload artifact (for debug)
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend_ux
+          path: metrics/frontend_ux.json
