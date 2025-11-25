@@ -1,6 +1,10 @@
-import {Component, computed, inject, signal} from '@angular/core';
+import {Component, computed, inject, signal, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {CreateSupportTicketRequest, SupportService} from '@feature/support/services/support.service';
+import {
+  CreateSupportTicketRequest,
+  SupportService,
+  SupportTicketResponse
+} from '@feature/support/services/support.service';
 
 @Component({
   selector: 'app-support-patient',
@@ -9,9 +13,10 @@ import {CreateSupportTicketRequest, SupportService} from '@feature/support/servi
   templateUrl: './support-patient.html',
   styleUrl: './support-patient.css'
 })
-export class SupportPatient {
+export class SupportPatient implements OnInit {
   private readonly support = inject(SupportService);
 
+  // ===== Form =====
   readonly form = signal<CreateSupportTicketRequest>({
     name: '',
     email: '',
@@ -19,48 +24,60 @@ export class SupportPatient {
     description: '',
   });
 
-  tickets = [
-    {
-      subject: 'Problema con el dispositivo',
-      status: 'OPEN',
-      answer: null
-    },
-    {
-      subject: 'No veo mis datos',
-      status: 'IN_PROGRESS',
-      answer: null
-    },
-    {
-      subject: 'Error en reporte mensual',
-      status: 'RESOLVED',
-      answer: 'Ya se corrigió el cálculo de tus reportes.'
-    },
-    {
-      subject: 'Cambio de plan',
-      status: 'CLOSED',
-      answer: 'Ticket cerrado. Si el problema continúa, abre uno nuevo.'
-    }
-  ];
-
-
-
   readonly loading = signal(false);
 
-  update<K extends keyof CreateSupportTicketRequest>(key: K, value: CreateSupportTicketRequest[K]) {
-    this.form.update(curr => ({...curr, [key]: value}));
-  }
-
-  private emailOk(email: string) {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  }
-
   readonly canSubmit = computed(() => {
-    const f = this.form();
-    return !!f.name && !!f.subject && !!f.description && this.emailOk(f.email);
+    const value = this.form();
+    return Boolean(
+      value.email?.trim() &&
+      value.name?.trim() &&
+      value.subject?.trim() &&
+      value.description?.trim()
+    );
   });
 
-  onSubmit() {
-    if (!this.canSubmit() || this.loading()) return;
+  tickets: SupportTicketResponse[] = [];
+  readonly ticketsLoading = signal(false);
+
+  ngOnInit(): void {
+    this.loadTickets();
+  }
+
+  update(field: keyof CreateSupportTicketRequest, value: string): void {
+    this.form.update(current => ({
+      ...current,
+      [field]: value,
+    }));
+  }
+
+  ticketAnswer(ticket: SupportTicketResponse): string {
+    const responses = ticket.responses ?? [];
+    if (!responses.length) {
+      return 'Waiting for response...';
+    }
+
+    const last = responses[responses.length - 1] as { description?: string; message?: string };
+    return last.description || last.message || 'Waiting for response...';
+  }
+
+  private loadTickets(): void {
+    this.ticketsLoading.set(true);
+
+    this.support.getMyTickets().subscribe({
+      next: tickets => {
+        this.tickets = tickets;
+        this.ticketsLoading.set(false);
+      },
+      error: () => {
+        this.ticketsLoading.set(false);
+      }
+    });
+  }
+
+  onSubmit(): void {
+    if (!this.canSubmit()) {
+      return;
+    }
 
     this.loading.set(true);
     const payload = this.form();
@@ -69,6 +86,7 @@ export class SupportPatient {
       next: () => {
         this.form.set({name: '', email: '', subject: '', description: ''});
         this.loading.set(false);
+        this.loadTickets();
       },
       error: () => {
         this.loading.set(false);
