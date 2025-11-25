@@ -58,48 +58,63 @@
       </form>
     </section>
 
-    <!-- Right: FAQ -->
-    <aside class="card faq-card" aria-labelledby="faq-title">
+    <!-- Right: Tickets List -->
+    <aside class="card tickets-card" aria-labelledby="tickets-title">
       <div class="card__header card__header--row">
-        <h2 id="faq-title" class="card__title">FREQUENTLY QUESTIONS</h2>
+        <h2 id="tickets-title" class="card__title">YOUR TICKETS</h2>
         <div class="card__icon">⤢</div>
       </div>
 
-      <p class="muted">take a look</p>
-
-      <ul class="faq__list">
-        <li class="faq__item">
-          <p class="faq__q">What vital signs does TukunTech measure?</p>
-          <p class="faq__a">
-            It currently measures heart rate, oxygen saturation (SpO₂), and body temperature.
-            These parameters are key to prevention and early detection of cardiovascular and respiratory problems.
+      <ul class="tickets__list">
+        <li class="ticket__item" *ngFor="let ticket of tickets">
+          <p class="ticket__subject">
+            <strong>Subject:</strong> {{ ticket.subject }}
           </p>
-        </li>
 
-        <li class="faq__item">
-          <p class="faq__q">Is it necessary to have an internet connection to use the system?</p>
-          <p class="faq__a">
-            Yes, TukunTech relies on internet connectivity to send device data to the cloud so it can be viewed in real
-            time on the web or mobile app.
-          </p>
-        </li>
+          <p class="ticket__status-row">
+            <span class="ticket__status-label">Status:</span>
 
-        <li class="faq__item">
-          <p class="faq__q">Who can access patient information?</p>
-          <p class="faq__a">
-            In the Individual Plan, only the primary user can access the patient's data. In the Family Plan, up to three
-            family members or caregivers can simultaneously access the patient's data from the app.
-          </p>
-        </li>
+            <span
+              class="status-chip status-chip--open"
+              [class.status-chip--active]="ticket.status === 'OPEN'"
+            >
+              OPEN
+            </span>
+            <span class="status__separator">--</span>
 
-        <li class="faq__item">
-          <p class="faq__q">What do I do if I receive a red alert?</p>
-          <p class="faq__a">
-            You must follow the protocol prescribed by your primary care physician and, if an emergency is confirmed,
-            immediately contact health services.
+            <span
+              class="status-chip status-chip--in-progress"
+              [class.status-chip--active]="ticket.status === 'IN_PROGRESS'"
+            >
+              IN PROGRESS
+            </span>
+            <span class="status__separator">--</span>
+
+            <span
+              class="status-chip status-chip--resolved"
+              [class.status-chip--active]="ticket.status === 'RESOLVED'"
+            >
+              RESOLVED
+            </span>
+            <span class="status__separator">--</span>
+
+            <span
+              class="status-chip status-chip--closed"
+              [class.status-chip--active]="ticket.status === 'CLOSED'"
+            >
+              CLOSED
+            </span>
           </p>
+
+
+          <p class="ticket__answer-label"><strong>Answer:</strong></p>
+          <div class="ticket__answer">
+            {{ ticket.answer || 'Waiting for response...' }}
+          </div>
         </li>
       </ul>
     </aside>
+
+
   </div>
 </div>

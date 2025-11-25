@@ -19,6 +19,31 @@ export class SupportPatient {
     description: '',
   });
 
+  tickets = [
+    {
+      subject: 'Problema con el dispositivo',
+      status: 'OPEN',
+      answer: null
+    },
+    {
+      subject: 'No veo mis datos',
+      status: 'IN_PROGRESS',
+      answer: null
+    },
+    {
+      subject: 'Error en reporte mensual',
+      status: 'RESOLVED',
+      answer: 'Ya se corrigió el cálculo de tus reportes.'
+    },
+    {
+      subject: 'Cambio de plan',
+      status: 'CLOSED',
+      answer: 'Ticket cerrado. Si el problema continúa, abre uno nuevo.'
+    }
+  ];
+
+
+
   readonly loading = signal(false);
 
   update<K extends keyof CreateSupportTicketRequest>(key: K, value: CreateSupportTicketRequest[K]) {
