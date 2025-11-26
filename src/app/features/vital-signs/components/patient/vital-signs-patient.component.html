@@ -46,12 +46,14 @@
         <h3 class="metric__label">beats per minute <small>Lpm</small></h3>
         <div class="metric__card">
           <div class="metric__left">
-            <img class="metric__icon" src="ic_heart_vs.png" alt="" />
+            <img class="metric__icon" src="ic_heart_vs.png" alt=""/>
             <svg class="metric__spark" viewBox="0 0 120 28" aria-hidden="true">
               <polyline class="metric__spark-line" [attr.points]="bpmPolyline"></polyline>
             </svg>
           </div>
-          <div class="metric__value">{{ bpm }}</div>
+          <div class="metric__value">
+            {{ hasData ? bpm : 'No data' }}
+          </div>
         </div>
       </div>
 
@@ -59,12 +61,14 @@
         <h3 class="metric__label">oxygenation <small>SpO₂</small></h3>
         <div class="metric__card">
           <div class="metric__left">
-            <img class="metric__icon" src="ic_oxygen_vs.png" alt="" />
+            <img class="metric__icon" src="ic_oxygen_vs.png" alt=""/>
             <svg class="metric__spark" viewBox="0 0 120 28" aria-hidden="true">
               <polyline class="metric__spark-line" [attr.points]="spo2Polyline"></polyline>
             </svg>
           </div>
-          <div class="metric__value">{{ spo2 }}%</div>
+          <div class="metric__value">
+            {{ hasData ? (spo2 + '%') : 'No data' }}
+          </div>
         </div>
       </div>
 
@@ -72,9 +76,11 @@
         <h3 class="metric__label">Temperature <small>Celsius</small></h3>
         <div class="metric__card">
           <div class="metric__left">
-            <img class="metric__icon" src="ic_temp_vs.png" alt="" />
+            <img class="metric__icon" src="ic_temp_vs.png" alt=""/>
           </div>
-          <div class="metric__value">36,2° C</div>
+          <div class="metric__value">
+            {{ hasData ? (temperature + '° C') : 'No data' }}
+          </div>
         </div>
       </div>
 
