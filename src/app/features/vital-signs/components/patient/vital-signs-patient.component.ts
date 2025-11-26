@@ -1,6 +1,7 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {NgForOf} from '@angular/common';
 import {interval, Subscription} from 'rxjs';
+import {MonitoringStreamService, VitalSignUpdate} from '@feature/vital-signs/services/monitoring-stream.service';
 
 type AlertLevel = 'mid' | 'high';
 type AlertType =
@@ -20,11 +21,10 @@ type AlertItem = { icon: string; label: string; time: string; level?: AlertLevel
   styleUrls: ['./vital-signs-patient.component.css']
 })
 export class VitalSignsPatientComponent implements OnInit, OnDestroy {
-  latestAlerts: AlertItem[] = [
-    {icon: '/ic_warning_home.png', label: 'Low oxygenation', time: '10:10', level: 'high'},
-    {icon: '/ic_warning_home.png', label: 'Accelerated heart rate', time: '15:20', level: 'mid'},
-    {icon: '/ic_warning_home.png', label: 'Low heart rate', time: '20:30', level: 'low' as any}
-  ];
+
+  latestAlerts: AlertItem[] = [];
+
+  hasData = false;
 
   mode: 'normal' | 'danger' | 'emergency' = 'normal';
   private ranges = {
@@ -45,13 +45,13 @@ export class VitalSignsPatientComponent implements OnInit, OnDestroy {
     }
   };
 
-  bpm = 85;
-  spo2 = 90;
-  temperature = 36.2;
+  bpm: number | null = null;
+  spo2: number | null = null;
+  temperature: number | null = null;
 
-  private bpmTarget = this.bpm;
-  private spo2Target = this.spo2;
-  private tempTarget = this.temperature;
+  private bpmTarget = 0;
+  private spo2Target = 0;
+  private tempTarget = 0;
 
   private W = 120;
   private H = 28;
@@ -86,7 +86,6 @@ export class VitalSignsPatientComponent implements OnInit, OnDestroy {
     low_temp: {level: null, value: null}
   };
 
-
   private deltas = {
     low_spo2: 1,
     tachycardia: 5,
@@ -97,9 +96,12 @@ export class VitalSignsPatientComponent implements OnInit, OnDestroy {
 
   private maxAlerts = 3;
 
+  constructor(private monitoringStream: MonitoringStreamService) {
+  }
+
   ngOnInit() {
     this.subAnim = interval(this.tickMs).subscribe(() => {
-      const periodSec = 60 / Math.max(40, this.bpmTarget);
+      const periodSec = 60 / Math.max(40, this.bpmTarget || 0);
       const dPhase = (this.tickMs / 1000) / periodSec;
       this.phase = (this.phase + dPhase) % 1;
 
@@ -114,19 +116,47 @@ export class VitalSignsPatientComponent implements OnInit, OnDestroy {
       this.spo2Polyline = this.toPoints(this.spo2Buf);
     });
 
-    this.subSlow = interval(this.slowMs).subscribe(() => {
-      const {bpm, spo2, temp} = this.ranges[this.mode];
+    const accessToken = localStorage.getItem('tt_access_token') ?? '';
+    const userRaw = localStorage.getItem('tt_user');
 
-      this.bpmTarget = this.rand(bpm[0], bpm[1]);
-      this.spo2Target = this.rand(spo2[0], spo2[1]);
-      this.tempTarget = this.lerp(this.rand(temp[0] * 10, temp[1] * 10) / 10, this.tempTarget, 0.2);
+    let userId: number | null = null;
+    if (userRaw) {
+      try {
+        const user = JSON.parse(userRaw);
+        userId = Number(user.id);
+      } catch (e) {
+        console.error('Error parseando tt_user desde localStorage', e, userRaw);
+      }
+    }
 
-      this.bpm = Math.round(this.lerp(this.bpm, this.bpmTarget, 0.25));
-      this.spo2 = Math.round(this.lerp(this.spo2, this.spo2Target, 0.25));
-      this.temperature = +(this.lerp(this.temperature, this.tempTarget, 0.20)).toFixed(1);
+    console.log('ACCESS TOKEN (tt_access_token):', accessToken);
+    console.log('USER ID (tt_user.id):', userId);
 
-      this.checkAlertsOnChange();
-    });
+    if (!accessToken || !userId) {
+      console.error('No hay token o userId válido, no se abre el stream');
+      return;
+    }
+
+    this.subSlow = this.monitoringStream
+      .streamUser(userId, accessToken)
+      .subscribe({
+        next: (v: VitalSignUpdate) => {
+          this.hasData = true;
+
+          this.bpmTarget = v.heartRate.value;
+          this.spo2Target = v.oxygenLevel.value;
+          this.tempTarget = v.temperature.value;
+
+          this.bpm = Math.round(this.bpmTarget);
+          this.spo2 = Math.round(this.spo2Target);
+          this.temperature = +this.tempTarget.toFixed(1);
+
+          this.checkAlertsOnChange();
+        },
+        error: (err) => {
+          console.error('Error en stream de signos vitales', err);
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -139,6 +169,10 @@ export class VitalSignsPatientComponent implements OnInit, OnDestroy {
   }
 
   private checkAlertsOnChange() {
+    if (this.bpm === null || this.spo2 === null || this.temperature === null) {
+      return;
+    }
+
     const now = new Date();
 
     let spo2Level: AlertLevel | null = null;
