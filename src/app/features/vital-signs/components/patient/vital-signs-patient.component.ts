@@ -25,6 +25,7 @@ export class VitalSignsPatientComponent implements OnInit, OnDestroy {
   latestAlerts: AlertItem[] = [];
 
   hasData = false;
+  noSignalMessage = 'No finger detected';
 
   mode: 'normal' | 'danger' | 'emergency' = 'normal';
   private ranges = {
@@ -64,6 +65,7 @@ export class VitalSignsPatientComponent implements OnInit, OnDestroy {
 
   private subAnim?: Subscription;
   private subSlow?: Subscription;
+  private subWatch?: Subscription;
 
   private tickMs = 40;
   private slowMs = 1500;
@@ -95,6 +97,9 @@ export class VitalSignsPatientComponent implements OnInit, OnDestroy {
   } as const;
 
   private maxAlerts = 3;
+
+  private lastUpdateMs: number | null = null;
+  private noDataTimeoutMs = 5000;
 
   constructor(private monitoringStream: MonitoringStreamService) {
   }
@@ -142,6 +147,7 @@ export class VitalSignsPatientComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (v: VitalSignUpdate) => {
           this.hasData = true;
+          this.lastUpdateMs = Date.now();
 
           this.bpmTarget = v.heartRate.value;
           this.spo2Target = v.oxygenLevel.value;
@@ -155,13 +161,20 @@ export class VitalSignsPatientComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           console.error('Error en stream de signos vitales', err);
+          this.handleStreamStopped();
+        },
+        complete: () => {
+          this.handleStreamStopped();
         }
       });
+
+    this.subWatch = interval(1000).subscribe(() => this.checkStale());
   }
 
   ngOnDestroy() {
     this.subAnim?.unsubscribe();
     this.subSlow?.unsubscribe();
+    this.subWatch?.unsubscribe();
   }
 
   changeMode(newMode: 'normal' | 'danger' | 'emergency') {
@@ -325,5 +338,23 @@ export class VitalSignsPatientComponent implements OnInit, OnDestroy {
     if (d > 0.5) d -= 1;
     if (d < -0.5) d += 1;
     return d;
+  }
+
+  private checkStale() {
+    if (!this.lastUpdateMs || !this.hasData) {
+      return;
+    }
+    const elapsed = Date.now() - this.lastUpdateMs;
+    if (elapsed > this.noDataTimeoutMs) {
+      this.handleStreamStopped();
+    }
+  }
+
+  private handleStreamStopped() {
+    this.hasData = false;
+    this.bpm = null;
+    this.spo2 = null;
+    this.temperature = null;
+    this.lastUpdateMs = null;
   }
 }

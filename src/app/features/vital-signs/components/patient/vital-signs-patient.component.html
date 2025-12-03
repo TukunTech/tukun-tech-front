@@ -28,7 +28,9 @@
 
       <div class="status__row">
         <span class="status__dot"></span>
-        <span class="status__text">connected</span>
+        <span class="status__text">
+          {{ hasData ? 'connected' : 'no sensor signal' }}
+        </span>
       </div>
     </section>
 
@@ -52,7 +54,7 @@
             </svg>
           </div>
           <div class="metric__value">
-            {{ hasData ? bpm : 'No data' }}
+            {{ hasData ? bpm : noSignalMessage }}
           </div>
         </div>
       </div>
@@ -67,7 +69,7 @@
             </svg>
           </div>
           <div class="metric__value">
-            {{ hasData ? (spo2 + '%') : 'No data' }}
+            {{ hasData ? (spo2 + '%') : noSignalMessage }}
           </div>
         </div>
       </div>
@@ -79,7 +81,7 @@
             <img class="metric__icon" src="ic_temp_vs.png" alt=""/>
           </div>
           <div class="metric__value">
-            {{ hasData ? (temperature + '° C') : 'No data' }}
+            {{ hasData ? (temperature + '° C') : noSignalMessage }}
           </div>
         </div>
       </div>
