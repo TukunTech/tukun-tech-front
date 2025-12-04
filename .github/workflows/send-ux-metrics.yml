@@ -36,31 +36,79 @@ jobs:
           const USER = process.env.E2E_USER;
           const PASS = process.env.E2E_PASS;
 
-          const browser = await chromium.launch({ headless: true });
-          const page = await browser.newPage({ viewport: { width: 1366, height: 800 } });
-
-          console.log("🌐 Opening front:", FRONT_URL);
-          await page.goto(`${FRONT_URL}/auth/login`, { waitUntil: 'domcontentloaded' });
-          await page.fill('input[name="username"], input[formcontrolname="username"]', USER);
-          await page.fill('input[name="password"], input[formcontrolname="password"]', PASS);
-          await Promise.all([
-            page.click('button[type="submit"]'),
-            page.waitForURL('**/dashboard/**', { timeout: 60000 }),
-          ]);
-
-          // Navega un poco por la app
-          const routes = ['/dashboard/patient', '/vital-signs', '/history', '/support'];
-          for (const r of routes) {
-            console.log("➡️", r);
-            await page.goto(`${FRONT_URL}${r}`, { waitUntil: 'networkidle' });
-            await page.waitForTimeout(1000);
+          if (!FRONT_URL || !USER || !PASS) {
+            console.error("❌ Missing FRONT_URL, E2E_USER or E2E_PASS env vars");
+            process.exit(1);
           }
 
-          // Extrae la cola UX
-          const data = await page.evaluate(() => window.__UXQ || []);
-          fs.writeFileSync('metrics/frontend_ux.json', JSON.stringify(data, null, 2));
-          console.log(`✅ Collected ${data.length} UX events.`);
-          await browser.close();
+          let browser;
+
+          try {
+            browser = await chromium.launch({ headless: true });
+            const page = await browser.newPage({ viewport: { width: 1366, height: 800 } });
+
+            // Timeouts más generosos para CI
+            page.setDefaultNavigationTimeout(60000);
+            page.setDefaultTimeout(30000);
+
+            console.log("🌐 Opening front:", FRONT_URL);
+            await page.goto(`${FRONT_URL}/auth/login`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+
+            await page.fill('input[name="username"], input[formcontrolname="username"]', USER);
+            await page.fill('input[name="password"], input[formcontrolname="password"]', PASS);
+
+            await Promise.all([
+              page.click('button[type="submit"]'),
+              page.waitForURL('**/dashboard/**', { timeout: 60000 }),
+            ]);
+
+            console.log("✅ Logged in, navigating through routes...");
+
+            const routes = [
+              { path: '/dashboard/patient', selector: 'app-patient-list, [data-ux="patient-list"]' },
+              { path: '/vital-signs',       selector: 'app-vital-signs, [data-ux="vital-signs"]' },
+              { path: '/history',           selector: 'app-history, [data-ux="history"]' },
+              { path: '/support',           selector: 'app-support, [data-ux="support"]' },
+            ];
+
+            for (const { path, selector } of routes) {
+              console.log("➡️", path);
+              try {
+                await page.goto(`${FRONT_URL}${path}`, {
+                  waitUntil: 'domcontentloaded',
+                  timeout: 60000,
+                });
+
+                if (selector) {
+                  await page.waitForSelector(selector, { timeout: 15000 })
+                    .catch(() => console.warn(`⚠️ No se encontró selector "${selector}" en ${path}, continúo...`));
+                }
+
+                // Pequeña espera para que se generen eventos UX
+                await page.waitForTimeout(1000);
+              } catch (err) {
+                console.warn(`⚠️ Error navegando a ${path}:`, err.message ?? err);
+                // No hacemos throw aquí para no romper todo el flujo.
+              }
+            }
+
+            // Extrae la cola UX
+            const data = await page.evaluate(() => {
+              // En caso de que la app no defina __UXQ
+              return (window.__UXQ && Array.isArray(window.__UXQ)) ? window.__UXQ : [];
+            });
+
+            fs.writeFileSync('metrics/frontend_ux.json', JSON.stringify(data, null, 2));
+            console.log(`✅ Collected ${data.length} UX events.`);
+
+          } catch (err) {
+            console.error("❌ UX metrics collection failed:", err);
+            process.exitCode = 1;
+          } finally {
+            if (browser) {
+              await browser.close();
+            }
+          }
           JS
 
           node collect_ux_metrics.mjs
