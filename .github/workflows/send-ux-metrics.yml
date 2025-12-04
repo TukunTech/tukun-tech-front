@@ -1,9 +1,12 @@
-name: Send UX Metrics to Grafana
+name: Send FULL UX Metrics to Grafana
 
 on:
   workflow_dispatch:
   push:
     branches: [ main ]
+  schedule:
+    # Corre una vez al día para tener series continuas
+    - cron: "0 3 * * *"
 
 jobs:
   export-ux-metrics:
@@ -17,7 +20,7 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Run UX Metrics collector (headless)
+      - name: Run UX Metrics collector (headless, multi-flows)
         env:
           FRONT_URL: "https://tukuntech-front.netlify.app"
           E2E_USER: ${{ secrets.E2E_USER }}
@@ -59,18 +62,24 @@ jobs:
           async function scrollPage(page) {
             try {
               console.log("   ↳ scrolling page...");
-              await page.mouse.wheel(0, 500);
+              await page.mouse.wheel(0, 600);
               await page.waitForTimeout(500);
-              await page.mouse.wheel(0, 500);
+              await page.mouse.wheel(0, 600);
               await page.waitForTimeout(500);
-              await page.mouse.wheel(0, -800);
+              await page.mouse.wheel(0, -900);
             } catch (err) {
               console.warn("   ⚠️ error scrolling page:", err.message ?? err);
             }
           }
 
           async function navigateAndExercise(page, config) {
-            const { path, waitSelectors = [], clickSelectors = [], pauseMs = 2000, retries = 2 } = config;
+            const {
+              path,
+              waitSelectors = [],
+              clickSelectors = [],
+              pauseMs = 2500,
+              retries = 2
+            } = config;
 
             console.log("➡️", path);
             let success = false;
@@ -83,7 +92,7 @@ jobs:
                   timeout: 60000,
                 });
 
-                // Espera a que cargue algo característico si se indicó
+                // Espera a elementos característicos de la vista
                 for (const sel of waitSelectors) {
                   try {
                     await page.waitForSelector(sel, { timeout: 15000 });
@@ -96,7 +105,7 @@ jobs:
 
                 await scrollPage(page);
 
-                // Intenta algunos clics típicos
+                // Clics "tipo" en la pantalla
                 if (clickSelectors.length > 0) {
                   await clickFirstIfExists(page, clickSelectors);
                 } else {
@@ -112,7 +121,10 @@ jobs:
                 success = true;
                 break;
               } catch (err) {
-                console.warn(`   ⚠️ error navigating/exercising ${path} (attempt ${attempt}):`, err.message ?? err);
+                console.warn(
+                  `   ⚠️ error navigating/exercising ${path} (attempt ${attempt}):`,
+                  err.message ?? err
+                );
               }
             }
 
@@ -163,39 +175,45 @@ jobs:
 
               console.log("✅ Logged in, exercising app flows...");
 
+              // Flujos basados en tus rutas reales
               const flows = [
-                // Dashboard principal
+                // Dashboard “root” (redirige según rol)
                 {
                   path: '/dashboard',
-                  waitSelectors: ['[data-ux="dashboard-root"]', 'app-dashboard'],
+                  waitSelectors: ['app-sidebar', 'router-outlet'],
                 },
-                // Pacientes: lista + posible detalle
+                // Dashboard paciente
                 {
                   path: '/dashboard/patient',
-                  waitSelectors: ['[data-ux="patient-list"]', 'table', 'app-patient-list'],
+                  waitSelectors: ['app-sidebar', 'app-dashboard-patient, app-dashboardpatientcomponent'],
                   clickSelectors: [
-                    '[data-ux="patient-row"]',
-                    'table tbody tr',
+                    '.alerts__item',
+                    'section.card',
                   ],
                 },
                 // Signos vitales
                 {
                   path: '/vital-signs',
-                  waitSelectors: ['[data-ux="vital-signs"]', 'app-vital-signs'],
+                  waitSelectors: ['app-patient-vital-signs'],
                 },
                 // Historia clínica
                 {
                   path: '/history',
-                  waitSelectors: ['[data-ux="history-list"]', 'app-history'],
+                  waitSelectors: ['app-patient-history'],
                   clickSelectors: [
-                    '[data-ux="history-row"]',
-                    'table tbody tr',
+                    '.alert-box',
+                    '.metric',
                   ],
                 },
                 // Soporte
                 {
                   path: '/support',
-                  waitSelectors: ['[data-ux="support-root"]', 'app-support'],
+                  waitSelectors: ['app-support-patient'],
+                },
+                // Suscripción (si existe en el menú)
+                {
+                  path: '/subscription',
+                  waitSelectors: ['app-subscription, [class*="subscription"]'],
                 },
               ];
 
@@ -203,12 +221,10 @@ jobs:
                 await navigateAndExercise(page, flow);
               }
 
-              // Aquí podrías añadir más flujos específicos (crear paciente, filtrar, etc.) si conoces los selectores
-
-              // Extrae la cola UX al final de toda la sesión
+              // Extraer la cola UX al final de toda la sesión
               try {
                 const data = await page.evaluate(() => {
-                  const q = window.__UXQ;
+                  const q = (window as any).__UXQ;
                   if (!q || !Array.isArray(q)) {
                     return [];
                   }
@@ -256,7 +272,7 @@ jobs:
             opentelemetry-api==1.38.0 \
             opentelemetry-exporter-otlp==1.38.0
 
-      - name: Send UX metrics to Grafana Cloud (best-effort)
+      - name: Send UX metrics to Grafana Cloud (full attrs, best-effort)
         env:
           OTLP_ENDPOINT: ${{ secrets.GRAFANA_OTLP_ENDPOINT }}
           GRAFANA_ID: ${{ secrets.GRAFANA_INSTANCE_ID }}
@@ -318,19 +334,29 @@ jobs:
             provider = MeterProvider(resource=resource, metric_readers=[reader])
             meter = provider.get_meter("ux-metrics")
 
+            # Un sólo histograma, diferenciando por atributos (metric, route, conn_type, etc.)
             hist = meter.create_histogram("frontend_ux_ms")
 
             count = 0
             for e in items:
               try:
-                dur = float(e.get("value", 0) or 0)
+                dur = float(e.get("value", 0) or 0.0)
               except Exception:
                 dur = 0.0
 
-              attrs = {
-                  "metric": e.get("metric") or "",
-                  "route": e.get("route") or "",
-              }
+              # Atributos ricos: lo que viene en e["attrs"] + ruta + nombre de métrica
+              attrs = {}
+              base_attrs = e.get("attrs") or {}
+
+              # Solo nos quedamos con tipos básicos soportados por OTEL
+              for k, v in base_attrs.items():
+                if isinstance(v, (str, bool, int, float)) or v is None:
+                  attrs[k] = "" if v is None else v
+
+              attrs.setdefault("metric", e.get("metric") or "")
+              attrs.setdefault("route", e.get("route") or "")
+              attrs.setdefault("source", "github-actions")
+
               try:
                 hist.record(dur, attributes=attrs)
                 count += 1
