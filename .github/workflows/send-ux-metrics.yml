@@ -224,7 +224,7 @@ jobs:
               // Extraer la cola UX al final de toda la sesión
               try {
                 const data = await page.evaluate(() => {
-                  const q = (window as any).__UXQ;
+                  const q = window.__UXQ;
                   if (!q || !Array.isArray(q)) {
                     return [];
                   }
